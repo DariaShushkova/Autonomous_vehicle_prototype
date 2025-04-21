@@ -80,8 +80,8 @@ private:
 };
 
 MotorControl motor;
-UltrasonicSensor frontSensor(TRIG_PIN_1, ECHO_PIN_1);
-UltrasonicSensor sideSensor(TRIG_PIN_2, ECHO_PIN_2);
+UltrasonicSensor rightSensor(TRIG_PIN_1, ECHO_PIN_1);
+UltrasonicSensor leftSensor(TRIG_PIN_2, ECHO_PIN_2);
 
 void setup() {
   pinMode(ENA, OUTPUT);
@@ -91,24 +91,25 @@ void setup() {
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
 
-  frontSensor.begin();
-  sideSensor.begin();
+  rightSensor.begin();
+  leftSensor.begin();
 
 #ifdef DEBUG_USE_LCD
   lcd_1.begin(16, 2);
   lcd_1.clear();
+  lcd_1.print("INIT");
 #endif
 }
 
 void loop() {
   int leftValue = analogRead(LEFT_SENSOR);
   int rightValue = analogRead(RIGHT_SENSOR);
-  float frontDistance = frontSensor.getDistance();
-  float sideDistance = sideSensor.getDistance();
+  float rightDistance = rightSensor.getDistance();
+  float leftDistance = leftSensor.getDistance();
 
   RobotState newState;
 
-  if (leftValue >= COLOR_THRESHOLD && rightValue >= COLOR_THRESHOLD && frontDistance >= 20 && sideDistance >= 20) {
+  if (leftValue >= COLOR_THRESHOLD && rightValue >= COLOR_THRESHOLD && rightDistance >= 20 && leftDistance >= 20) {
     newState = FORWARD;
   }
   else if (leftValue < COLOR_THRESHOLD && rightValue >= COLOR_THRESHOLD) {
@@ -117,7 +118,7 @@ void loop() {
   else if (leftValue >= COLOR_THRESHOLD && rightValue < COLOR_THRESHOLD) {
     newState = RIGHT;
   }
-  else if ((leftValue >= COLOR_THRESHOLD && rightValue >= COLOR_THRESHOLD) && (frontDistance < 20 || sideDistance < 20)) {
+  else if ((leftValue >= COLOR_THRESHOLD && rightValue >= COLOR_THRESHOLD) && (rightDistance < 20 || leftDistance < 20)) {
     newState = BACKWARD;
   }
   else {
@@ -134,28 +135,28 @@ void loop() {
     switch (currentState) {
       case FORWARD:
 #ifdef DEBUG_USE_LCD
-        lcd_1.print("go");
+        lcd_1.print("forward");
 #endif
         motor.moveForward();
         break;
 
       case LEFT:
 #ifdef DEBUG_USE_LCD
-        lcd_1.print("go left");
+        lcd_1.print("turn left");
 #endif
         motor.turnLeft();
         break;
 
       case RIGHT:
 #ifdef DEBUG_USE_LCD
-        lcd_1.print("go right");
+        lcd_1.print("turn right");
 #endif
         motor.turnRight();
         break;
 
       case BACKWARD:
 #ifdef DEBUG_USE_LCD
-        lcd_1.print("reverse");
+        lcd_1.print("backward");
 #endif
         motor.moveBackward();
         break;
@@ -171,4 +172,3 @@ void loop() {
 
   delay(100);
 }
-
