@@ -25,9 +25,9 @@
 #define LEFT 1
 #define RIGHT 2
 #define STOPPED 3
-#define BACKWARD 4
+#define OBSTACLE_AVOID 4
 
-#define DEBUG_USE_LCD  // Comment this line for real experiment (no LCD, no Serial)
+#define DEBUG_USE_LCD  // Comment this line for real experiment (no LCD)
 
 #ifdef DEBUG_USE_LCD
 Adafruit_LiquidCrystal lcd_1(0);
@@ -102,6 +102,11 @@ class RobotNavigation {
     UltrasonicSensor* leftSensor;
     MotorControl* motor;
     
+    // For obstacle avoidance state machine
+    unsigned long obstacleStartTime = 0;
+    int obstacleStep = 0;
+    bool inObstacleAvoidance = false;
+    
   public:
     RobotNavigation(UltrasonicSensor* right, UltrasonicSensor* left, MotorControl* motorControl) {
       rightSensor = right;
@@ -150,11 +155,13 @@ class RobotNavigation {
           motor->turnRight(90);
           break;
           
-        case BACKWARD:
+        case OBSTACLE_AVOID:
           #ifdef DEBUG_USE_LCD
-            lcd_1.print("backward");
+            lcd_1.print("obstacle");
           #endif
-          motor->moveBackward(90);
+          inObstacleAvoidance = true;
+          obstacleStep = 0;
+          obstacleStartTime = millis();
           break;
           
         case STOPPED:
@@ -167,6 +174,12 @@ class RobotNavigation {
     }
     
     void updateNavigation(unsigned long currentTime) {
+      
+      if (inObstacleAvoidance) {
+        handleObstacleAvoidance(currentTime);
+        return;
+      }
+      
       // Small delay between state changes (millis() instead of delay(100))
       if (currentTime - previousTime < stateDelay) {
         return;
@@ -190,8 +203,8 @@ class RobotNavigation {
       else if (leftValue >= COLOR_THRESHOLD && rightValue < COLOR_THRESHOLD) {
         newState = RIGHT;
       }
-      else if ((leftValue >= COLOR_THRESHOLD && rightValue >= COLOR_THRESHOLD) && (rightDistance < 20 || leftDistance < 20)) {
-        newState = BACKWARD;
+      else if (rightDistance < 20 || leftDistance < 20) {
+        newState = OBSTACLE_AVOID;
       }
       else {
         newState = STOPPED;
@@ -201,6 +214,106 @@ class RobotNavigation {
       if (newState != currentState) {
         setRobotState(newState);
         previousTime = currentTime;
+      }
+    }
+  
+    void handleObstacleAvoidance(unsigned long currentTime) {
+      float rightDistance = rightSensor->getDistance();
+      float leftDistance = leftSensor->getDistance();
+      
+      // Only update LCD if step changes
+      static int lastObstacleStep = -1;
+      if (obstacleStep != lastObstacleStep) {
+        lastObstacleStep = obstacleStep;
+        
+        #ifdef DEBUG_USE_LCD
+          lcd_1.clear();
+          // Print appropriate message based on obstacle step
+          switch (obstacleStep) {
+            case 0: lcd_1.print("obs:backward"); break;
+            case 1: lcd_1.print("obs:left"); break;
+            case 2: lcd_1.print("obs:forward1"); break;
+            case 3: lcd_1.print("obs:right1"); break;
+            case 4: lcd_1.print("obs:forward2"); break;
+            case 5: lcd_1.print("obs:right2"); break;
+            case 6: lcd_1.print("obs:forward3"); break;
+          }
+        #endif
+      }
+      
+      switch (obstacleStep) {
+        case 0: // Move backward
+          motor->moveBackward(90);
+          if (rightDistance >= 20 && leftDistance >= 20) {
+            obstacleStep++;
+            obstacleStartTime = currentTime;
+          }
+          break;
+    
+        case 1: // Turn left
+          motor->turnLeft(100);
+          if ((currentTime - obstacleStartTime >= 1000)) {
+            obstacleStep++;
+            obstacleStartTime = currentTime;
+          }
+          break;
+    
+        case 2: // Drive forward to bypass
+          motor->moveForward(100);
+          if ((currentTime - obstacleStartTime >= 3000)) {
+            obstacleStep++;
+            obstacleStartTime = currentTime;
+          }
+          break;
+    
+        case 3: // Turn right
+          motor->turnRight(100);
+          if ((currentTime - obstacleStartTime >= 1000)) {
+            obstacleStep++;
+            obstacleStartTime = currentTime;
+          }
+          break;
+    
+        case 4: // Drive forward to get around obstacle
+          motor->moveForward(100);
+          if ((currentTime - obstacleStartTime >= 3000)) {
+            obstacleStep++;
+            obstacleStartTime = currentTime;
+          }
+          break;
+    
+        case 5: // Final turn right
+          motor->turnRight(100);
+          if ((currentTime - obstacleStartTime >= 1000)) {
+            obstacleStep++;
+            obstacleStartTime = currentTime;
+          }
+          break;
+    
+        case 6: // Move forward until line is found or timeout
+          if (analogRead(LEFT_SENSOR) < COLOR_THRESHOLD && analogRead(RIGHT_SENSOR) < COLOR_THRESHOLD) {
+            motor->moveForward(90);
+            
+            // Check timeout
+            if (currentTime - obstacleStartTime >= 5000) {  // 5-seconds timeout
+              #ifdef DEBUG_USE_LCD
+                lcd_1.clear();
+                lcd_1.print("stopped");
+              #endif
+              motor->stopMotors();
+              inObstacleAvoidance = false;
+              currentState = STOPPED;
+            }
+            
+          } else {
+            #ifdef DEBUG_USE_LCD
+              lcd_1.clear();
+              lcd_1.print("obs:out");
+            #endif
+            inObstacleAvoidance = false;
+            currentState = STOPPED;
+          }
+          break;
       }
     }
 };
