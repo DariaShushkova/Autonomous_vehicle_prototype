@@ -147,17 +147,17 @@ class RobotNavigation {
       // Determine new state conditions
       int newState;
 
-      if (leftValue == HIGH && rightValue==HIGH && rightDistance >= 20 && leftDistance >= 20) {
+      if (leftValue == LOW && rightValue==LOW && rightDistance >= 20 && leftDistance >= 20) {
         newState = FORWARD;
       }
-      else if (leftValue == LOW && rightValue == HIGH) {
+      else if (leftValue == HIGH && rightValue == LOW) {
         newState = LEFT;
       }
-      else if (leftValue == HIGH && rightValue == LOW) {
+      else if (leftValue == LOW && rightValue == HIGH) {
         newState = RIGHT;
       }
       // 
-      else if ((leftValue == HIGH && rightValue == HIGH) && (rightDistance < 20 || leftDistance < 20)) {
+      else if ((leftValue == LOW && rightValue == LOW) && (rightDistance < 20 || leftDistance < 20)) {
         newState = BACKWARD;
       }
       else {
@@ -187,7 +187,8 @@ void setup() {
   pinMode(IN4, OUTPUT);
   pinMode(LEFT_SENSOR,INPUT);
   pinMode(RIGHT_SENSOR,INPUT);
-  
+  digitalWrite(LEFT_SENSOR,HIGH);
+  digitalWrite(RIGHT_SENSOR, HIGH);
   // Initialize sensors
   rightSensor.begin();
   leftSensor.begin();
