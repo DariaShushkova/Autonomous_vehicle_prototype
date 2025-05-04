@@ -1,24 +1,25 @@
-#include <Wire.h>
 #include <Adafruit_LiquidCrystal.h>
 
-// Motor pins
-#define ENA 10
-#define ENB 11
-#define IN1 2
-#define IN2 3
-#define IN3 4
-#define IN4 5
+// Define pins for motors
+#define LEFT_MOTOR_SPEED_PIN 10       // PWM pin controlling left motor speed
+#define RIGHT_MOTOR_SPEED_PIN 11      // PWM pin controlling right motor speed
+#define LEFT_MOTOR_FORWARD_PIN 2      // Digital pin to move left motor forward
+#define LEFT_MOTOR_BACKWARD_PIN 3     // Digital pin to move left motor backward
+#define RIGHT_MOTOR_FORWARD_PIN 4     // Digital pin to move right motor forward
+#define RIGHT_MOTOR_BACKWARD_PIN 5    // Digital pin to move right motor backward
 
-// Ultrasonic sensors
-#define TRIG_PIN_1 6
-#define ECHO_PIN_1 7
-#define TRIG_PIN_2 8
-#define ECHO_PIN_2 9
+// Define pins for ultrasonic sensors
+#define RIGHT_TRIG_PIN 6   // Trigger pin for right ultrasonic sensor
+#define RIGHT_ECHO_PIN 7   // Echo pin for right ultrasonic sensor
+#define LEFT_TRIG_PIN 8    // Trigger pin for left ultrasonic sensor
+#define LEFT_ECHO_PIN 9    // Echo pin for left ultrasonic sensor
 
-// Line sensors
-#define LEFT_SENSOR A0
-#define RIGHT_SENSOR A1
-#define COLOR_THRESHOLD 100
+// Define pins for line sensors
+#define LINE_SENSOR_LEFT A0    // Left line sensor analog input
+#define LINE_SENSOR_RIGHT A1   // Right line sensor analog input
+#define LINE_THRESHOLD 100     // Values equal or above this threshold indicate the line is detected
+
+#define DEBUG_USE_LCD          // To disable LCD, comment this out
 
 // Robot states
 #define FORWARD 0
@@ -27,290 +28,333 @@
 #define STOPPED 3
 #define OBSTACLE_AVOID 4
 
-#define DEBUG_USE_LCD  // Comment this line for real experiment (no LCD)
-
+// LCD initialization
 #ifdef DEBUG_USE_LCD
-Adafruit_LiquidCrystal lcd_1(0);
+Adafruit_LiquidCrystal lcd(0); // LCD with I2C address 0 (used in simulation)
 #endif
 
 class UltrasonicSensor {
   private:
-    int trig, echo;
-    
+    int trigPin;   // Trigger pin used to send ultrasonic pulse
+    int echoPin;   // Echo pin used to receive reflection
+
   public:
-    UltrasonicSensor(int trigPin, int echoPin) : trig(trigPin), echo(echoPin) {}
-    
-    void begin() {
-      pinMode(trig, OUTPUT);
-      pinMode(echo, INPUT);
+    // Constructor: store trigger and echo pins
+    UltrasonicSensor(int trig, int echo) {
+      trigPin = trig;
+      echoPin = echo;
     }
-    
+
+    // Set trigger as output and echo as input
+    void begin() {
+      pinMode(trigPin, OUTPUT);
+      pinMode(echoPin, INPUT);
+    }
+
+    // Measure distance using ultrasonic sensor and return value in cm
     float getDistance() {
-      digitalWrite(trig, LOW);
+      // Ensure clean LOW pulse before sending trigger
+      digitalWrite(trigPin, LOW);
       delayMicroseconds(2);
-      digitalWrite(trig, HIGH);
+
+      // Send 10µs HIGH pulse to start measurement
+      digitalWrite(trigPin, HIGH);
       delayMicroseconds(10);
-      digitalWrite(trig, LOW);
-      long duration = pulseIn(echo, HIGH, 20000);
-      return duration * 0.01723;
+      digitalWrite(trigPin, LOW);
+
+      // Measure duration of echo signal (time between trigger and echo return)
+      long duration = pulseIn(echoPin, HIGH, 20000); // Timeout after 20ms
+
+      // Convert duration to distance in centimeters
+      return duration * 0.01723;  // Speed of sound formula
     }
 };
 
 class MotorControl {
   private:
-    void setMotors(int speedA, int speedB, int in1, int in2, int in3, int in4) {
-      analogWrite(ENA, speedA);
-      analogWrite(ENB, speedB);
-      digitalWrite(IN1, in1);
-      digitalWrite(IN2, in2);
-      digitalWrite(IN3, in3);
-      digitalWrite(IN4, in4);
+    // Internal helper function to apply motor direction and speed
+    void setMotorStates(int leftSpeed, int rightSpeed,
+                      int leftForward, int leftBackward,
+                      int rightForward, int rightBackward) {
+      // Set PWM speeds for both motors
+      analogWrite(LEFT_MOTOR_SPEED_PIN, leftSpeed);
+      analogWrite(RIGHT_MOTOR_SPEED_PIN, rightSpeed);
+
+      // Set direction for left motor
+      digitalWrite(LEFT_MOTOR_FORWARD_PIN, leftForward);
+      digitalWrite(LEFT_MOTOR_BACKWARD_PIN, leftBackward);
+
+      // Set direction for right motor
+      digitalWrite(RIGHT_MOTOR_FORWARD_PIN, rightForward);
+      digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, rightBackward);
     }
-    
+
   public:
-      // Adjusct speed depending on the state (for balancing)
+    // Move robot straight forward at given speed
     void moveForward(int speed) {
-      setMotors(speed, speed, HIGH, LOW, HIGH, LOW);
+      setMotorStates(speed, speed, HIGH, LOW, HIGH, LOW);
     }
-    
+
+    // Move robot straight backward at given speed
     void moveBackward(int speed) {
-      setMotors(speed, speed, LOW, HIGH, LOW, HIGH);
+      setMotorStates(speed, speed, LOW, HIGH, LOW, HIGH);
     }
-    
+
+    // Rotate robot to the left (left wheel backward, right wheel forward)
     void turnLeft(int speed) {
-      setMotors(speed, speed, LOW, HIGH, HIGH, LOW);
+      setMotorStates(speed, speed, LOW, HIGH, HIGH, LOW);
     }
-    
+
+    // Rotate robot to the right (left wheel forward, right wheel backward)
     void turnRight(int speed) {
-      setMotors(speed, speed, HIGH, LOW, LOW, HIGH);
+      setMotorStates(speed, speed, HIGH, LOW, LOW, HIGH);
     }
-    
+
+    // Stop both motors by setting speed to 0
     void stopMotors() {
-      analogWrite(ENA, 0);
-      analogWrite(ENB, 0);
+      analogWrite(LEFT_MOTOR_SPEED_PIN, 0);
+      analogWrite(RIGHT_MOTOR_SPEED_PIN, 0);
     }
 };
 
 class RobotNavigation {
   private:
-    int currentState;
-    unsigned long previousTime = 0;
-    int stateDelay = 100; // Minimum time between state changes (millis() instead of delay(100))
-      int dynamicSpeed;
-    
+    int currentState;                    // Current robot behavior state
+    unsigned long previousTime;          // Last time state was updated
+    int stateChangeDelay = 100;          // Minimum delay between state transitions
+
+    // Obstacle avoidance internal state
+    bool avoidingObstacle = false;       // Flag to set OBSTACLE_AVOID state
+    int obstacleStep = 0;                // Indicates a step in obstacle routine
+    unsigned long obstacleStartTime;     // Timestamp of current step in obstacle routine
+
+    // Pointers to hardware control classes
     UltrasonicSensor* rightSensor;
     UltrasonicSensor* leftSensor;
     MotorControl* motor;
-    
-    // For obstacle avoidance state machine
-    unsigned long obstacleStartTime = 0;
-    int obstacleStep = 0;
-    bool inObstacleAvoidance = false;
-    
+
   public:
+    // Constructor: Assign passed sensor and motor objects
     RobotNavigation(UltrasonicSensor* right, UltrasonicSensor* left, MotorControl* motorControl) {
       rightSensor = right;
       leftSensor = left;
       motor = motorControl;
-      currentState = STOPPED;
+      currentState = STOPPED; // Default state on boot
     }
-    
+
+    // Initialize LCD and stop motors
     void begin() {
-      #ifdef DEBUG_USE_LCD
-        lcd_1.clear();
-        lcd_1.print("INIT");
-      #endif
-      
+    #ifdef DEBUG_USE_LCD
+      lcd.begin(16, 2);    // Initialize 16x2 LCD
+      lcd.clear();
+      lcd.print("INIT");   // Display initialization message
+    #endif
+
       currentState = STOPPED;
-      motor->stopMotors();
-      previousTime = millis();
+      motor->stopMotors();           // Ensure robot is not moving
+      previousTime = millis();       // Record current time for state delay
     }
-    
+
+    // Change robot's state and act accordingly
     void setRobotState(int state) {
       currentState = state;
-      
-      #ifdef DEBUG_USE_LCD
-        lcd_1.clear();
-      #endif
-      
+
+    #ifdef DEBUG_USE_LCD
+      lcd.clear();                   // Clear LCD screen for new state
+    #endif
+
+      // Execute behavior for each state
       switch (currentState) {
         case FORWARD:
-          #ifdef DEBUG_USE_LCD
-            lcd_1.print("forward");
-          #endif
-          motor->moveForward(200);
+    #ifdef DEBUG_USE_LCD
+          lcd.print("Moving Forward");
+    #endif
+          motor->moveForward(200);   // Drive forward at speed 200
           break;
-          
+
         case LEFT:
-          #ifdef DEBUG_USE_LCD
-            lcd_1.print("turn left");
-          #endif
-          motor->turnLeft(90);
+    #ifdef DEBUG_USE_LCD
+          lcd.print("Turning Left");
+    #endif
+          motor->turnLeft(90);       // Slow turn left
           break;
-          
+
         case RIGHT:
-          #ifdef DEBUG_USE_LCD
-            lcd_1.print("turn right");
-          #endif
-          motor->turnRight(90);
+    #ifdef DEBUG_USE_LCD
+          lcd.print("Turning Right");
+    #endif
+          motor->turnRight(90);      // Slow turn right
           break;
-          
+
         case OBSTACLE_AVOID:
-          #ifdef DEBUG_USE_LCD
-            lcd_1.print("obstacle");
-          #endif
-          inObstacleAvoidance = true;
-          obstacleStep = 0;
-          obstacleStartTime = millis();
+    #ifdef DEBUG_USE_LCD
+          lcd.print("Avoiding Obstacle");
+    #endif
+          avoidingObstacle = true;
+          obstacleStep = 0;                  // Reset obstacle avoidance sequence
+          obstacleStartTime = millis();      // Start timing
           break;
-          
+
         case STOPPED:
-          #ifdef DEBUG_USE_LCD
-            lcd_1.print("stop");
-          #endif
-          motor->stopMotors();
+    #ifdef DEBUG_USE_LCD
+          lcd.print("Stopped");
+    #endif
+          motor->stopMotors();              // Cut power to motors
           break;
       }
     }
-    
+
+    // Main logic loop: process line and obstacle sensors
     void updateNavigation(unsigned long currentTime) {
-      
-      if (inObstacleAvoidance) {
+      // If in obstacle avoidance, delegate to obstacle handler
+      if (avoidingObstacle) {
         handleObstacleAvoidance(currentTime);
         return;
       }
-      
+
       // Small delay between state changes (millis() instead of delay(100))
-      if (currentTime - previousTime < stateDelay) {
+      if (currentTime - previousTime < stateChangeDelay) {
         return;
       }
-      
-      // Read sensor values
-      int leftValue = analogRead(LEFT_SENSOR);
-      int rightValue = analogRead(RIGHT_SENSOR);
+
+      // Read line sensors
+      int leftLine = analogRead(LINE_SENSOR_LEFT);
+      int rightLine = analogRead(LINE_SENSOR_RIGHT);
+
+      // Read obstacle sensors
       float rightDistance = rightSensor->getDistance();
       float leftDistance = leftSensor->getDistance();
-      
-      // Determine new state conditions
+
       int newState;
-      
-      if (leftValue >= COLOR_THRESHOLD && rightValue >= COLOR_THRESHOLD && rightDistance >= 20 && leftDistance >= 20) {
-        newState = FORWARD;
+
+      // Choose action based on sensor readings
+      if (leftLine >= LINE_THRESHOLD && rightLine >= LINE_THRESHOLD && rightDistance >= 20 && leftDistance >= 20) {
+        newState = FORWARD;  // Path clear
       }
-      else if (leftValue < COLOR_THRESHOLD && rightValue >= COLOR_THRESHOLD) {
-        newState = LEFT;
+      else if (leftLine < LINE_THRESHOLD && rightLine >= LINE_THRESHOLD) {
+        newState = LEFT;     // Left line lost: turn left
       }
-      else if (leftValue >= COLOR_THRESHOLD && rightValue < COLOR_THRESHOLD) {
-        newState = RIGHT;
+      else if (leftLine >= LINE_THRESHOLD && rightLine < LINE_THRESHOLD) {
+        newState = RIGHT;    // Right line lost: turn right
       }
       else if (rightDistance < 20 || leftDistance < 20) {
-        newState = OBSTACLE_AVOID;
+        newState = OBSTACLE_AVOID;  // Obstacle detected
       }
       else {
-        newState = STOPPED;
+        newState = STOPPED;  // Unknown condition: stop
       }
-      
-      // If state changed, update it
+
+      // Apply new state if changed
       if (newState != currentState) {
         setRobotState(newState);
-        previousTime = currentTime;
+        previousTime = currentTime;  // Update timestamp
       }
     }
-  
+
+    // Behavior for obstacle avoidance sequence
     void handleObstacleAvoidance(unsigned long currentTime) {
       float rightDistance = rightSensor->getDistance();
       float leftDistance = leftSensor->getDistance();
-      
-      // Only update LCD if step changes
-      static int lastObstacleStep = -1;
-      if (obstacleStep != lastObstacleStep) {
-        lastObstacleStep = obstacleStep;
-        
-        #ifdef DEBUG_USE_LCD
-          lcd_1.clear();
-          // Print appropriate message based on obstacle step
-          switch (obstacleStep) {
-            case 0: lcd_1.print("obs:backward"); break;
-            case 1: lcd_1.print("obs:left"); break;
-            case 2: lcd_1.print("obs:forward1"); break;
-            case 3: lcd_1.print("obs:right1"); break;
-            case 4: lcd_1.print("obs:forward2"); break;
-            case 5: lcd_1.print("obs:right2"); break;
-            case 6: lcd_1.print("obs:forward3"); break;
-          }
-        #endif
+
+      // Update LCD only if step changed
+      static int lastStepDisplayed = -1;
+      if (obstacleStep != lastStepDisplayed) {
+        lastStepDisplayed = obstacleStep;
+
+    #ifdef DEBUG_USE_LCD
+        lcd.clear();
+        switch (obstacleStep) {
+          case 0: lcd.print("Back up"); break;
+          case 1: lcd.print("Turn left"); break;
+          case 2: lcd.print("Bypass1"); break;
+          case 3: lcd.print("Turn right 1"); break;
+          case 4: lcd.print("Bypass2"); break;
+          case 5: lcd.print("Turn right 2"); break;
+          case 6: lcd.print("Searching line"); break;
+        }
+    #endif
       }
-      
+
+      // Step-by-step routine
       switch (obstacleStep) {
-        case 0: // Move backward
+        case 0:
+          // Step 0: Move backward until obstacle cleared
           motor->moveBackward(90);
           if (rightDistance >= 20 && leftDistance >= 20) {
             obstacleStep++;
             obstacleStartTime = currentTime;
           }
           break;
-    
-        case 1: // Turn left
+
+        case 1:
+          // Step 1: Turn left to start bypass
           motor->turnLeft(100);
-          if ((currentTime - obstacleStartTime >= 1000)) {
+          if (currentTime - obstacleStartTime >= 1000) {
             obstacleStep++;
             obstacleStartTime = currentTime;
           }
           break;
-    
-        case 2: // Drive forward to bypass
+
+        case 2:
+          // Step 2: Move forward around obstacle
           motor->moveForward(100);
-          if ((currentTime - obstacleStartTime >= 3000)) {
+          if (currentTime - obstacleStartTime >= 3000) {
             obstacleStep++;
             obstacleStartTime = currentTime;
           }
           break;
-    
-        case 3: // Turn right
+
+        case 3:
+          // Step 3: Turn right to realign
           motor->turnRight(100);
-          if ((currentTime - obstacleStartTime >= 1000)) {
+          if (currentTime - obstacleStartTime >= 1000) {
             obstacleStep++;
             obstacleStartTime = currentTime;
           }
           break;
-    
-        case 4: // Drive forward to get around obstacle
+
+        case 4:
+          // Step 4: Move forward again
           motor->moveForward(100);
-          if ((currentTime - obstacleStartTime >= 3000)) {
+          if (currentTime - obstacleStartTime >= 3000) {
             obstacleStep++;
             obstacleStartTime = currentTime;
           }
           break;
-    
-        case 5: // Final turn right
+
+        case 5:
+          // Step 5: Turn right again to face line
           motor->turnRight(100);
-          if ((currentTime - obstacleStartTime >= 1000)) {
+          if (currentTime - obstacleStartTime >= 1000) {
             obstacleStep++;
             obstacleStartTime = currentTime;
           }
           break;
-    
-        case 6: // Move forward until line is found or timeout
-          if (analogRead(LEFT_SENSOR) < COLOR_THRESHOLD && analogRead(RIGHT_SENSOR) < COLOR_THRESHOLD) {
+
+        case 6:
+          // Step 6: Search for line or timeout
+          if (analogRead(LINE_SENSOR_LEFT) < LINE_THRESHOLD &&
+              analogRead(LINE_SENSOR_RIGHT) < LINE_THRESHOLD) {
             motor->moveForward(90);
-            
-            // Check timeout
-            if (currentTime - obstacleStartTime >= 5000) {  // 5-seconds timeout
-              #ifdef DEBUG_USE_LCD
-                lcd_1.clear();
-                lcd_1.print("stopped");
-              #endif
+
+            // Timeout failsafe (5 seconds)
+            if (currentTime - obstacleStartTime >= 5000) {
+        #ifdef DEBUG_USE_LCD
+              lcd.clear();
+              lcd.print("Timed out");
+        #endif
               motor->stopMotors();
-              inObstacleAvoidance = false;
+              avoidingObstacle = false;
               currentState = STOPPED;
             }
-            
+
           } else {
-            #ifdef DEBUG_USE_LCD
-              lcd_1.clear();
-              lcd_1.print("obs:out");
-            #endif
-            inObstacleAvoidance = false;
+            // Line found again
+        #ifdef DEBUG_USE_LCD
+            lcd.clear();
+            lcd.print("Line found");
+        #endif
+            avoidingObstacle = false;
             currentState = STOPPED;
           }
           break;
@@ -318,34 +362,32 @@ class RobotNavigation {
     }
 };
 
+// ============================= GLOBAL OBJECTS =============================
+// Create hardware instances
 MotorControl motor;
-UltrasonicSensor rightSensor(TRIG_PIN_1, ECHO_PIN_1);
-UltrasonicSensor leftSensor(TRIG_PIN_2, ECHO_PIN_2);
-RobotNavigation robotNav(&rightSensor, &leftSensor, &motor);
+UltrasonicSensor rightUltrasonic(RIGHT_TRIG_PIN, RIGHT_ECHO_PIN);
+UltrasonicSensor leftUltrasonic(LEFT_TRIG_PIN, LEFT_ECHO_PIN);
+RobotNavigation robotNav(&rightUltrasonic, &leftUltrasonic, &motor);
 
+// ============================= ARDUINO FUNCTIONS =============================
 void setup() {
-  // Initialize motor pins
-  pinMode(ENA, OUTPUT);
-  pinMode(ENB, OUTPUT);
-  pinMode(IN1, OUTPUT);
-  pinMode(IN2, OUTPUT);
-  pinMode(IN3, OUTPUT);
-  pinMode(IN4, OUTPUT);
-  
-  // Initialize sensors
-  rightSensor.begin();
-  leftSensor.begin();
-  
-  // Initialize LCD for simulation
-  #ifdef DEBUG_USE_LCD
-    lcd_1.begin(16, 2);
-  #endif
-  
-  // Initialize navigation
+  // Setup motor pins as outputs
+  pinMode(LEFT_MOTOR_SPEED_PIN, OUTPUT);
+  pinMode(RIGHT_MOTOR_SPEED_PIN, OUTPUT);
+  pinMode(LEFT_MOTOR_FORWARD_PIN, OUTPUT);
+  pinMode(LEFT_MOTOR_BACKWARD_PIN, OUTPUT);
+  pinMode(RIGHT_MOTOR_FORWARD_PIN, OUTPUT);
+  pinMode(RIGHT_MOTOR_BACKWARD_PIN, OUTPUT);
+
+  // Initialize ultrasonic sensors
+  rightUltrasonic.begin();
+  leftUltrasonic.begin();
+
+  // Start navigation system
   robotNav.begin();
 }
 
 void loop() {
-  unsigned long currentTime = millis();
-  robotNav.updateNavigation(currentTime);
+  unsigned long currentTime = millis();     // Get current time
+  robotNav.updateNavigation(currentTime);   // Execute robot logic
 }
