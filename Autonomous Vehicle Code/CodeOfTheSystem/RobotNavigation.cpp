@@ -84,8 +84,8 @@ void RobotNavigation::updateNavigation(unsigned long currentTime) {
   }
 
   // Read line sensors
-  int leftLine = analogRead(LINE_SENSOR_LEFT);
-  int rightLine = analogRead(LINE_SENSOR_RIGHT);
+  int leftLine = digitalRead(LINE_SENSOR_LEFT);
+  int rightLine = digitalRead(LINE_SENSOR_RIGHT);
 
   // Read obstacle sensors
   float rightDistance = rightSensor->getDistance();
@@ -94,13 +94,13 @@ void RobotNavigation::updateNavigation(unsigned long currentTime) {
   int newState;
 
   // Choose action based on sensor readings
-  if (leftLine >= LINE_THRESHOLD && rightLine >= LINE_THRESHOLD && rightDistance >= 20 && leftDistance >= 20) {
+  if (leftLine == HIGH && rightLine == HIGH && rightDistance >= 20 && leftDistance >= 20) {
     newState = FORWARD;  // Path clear
   }
-  else if (leftLine < LINE_THRESHOLD && rightLine >= LINE_THRESHOLD) {
+  else if (leftLine == LOW && rightLine == HIGH) {
     newState = LEFT;     // Left line lost: turn left
   }
-  else if (leftLine >= LINE_THRESHOLD && rightLine < LINE_THRESHOLD) {
+  else if (leftLine == HIGH && rightLine == LOW) {
     newState = RIGHT;    // Right line lost: turn right
   }
   else if (rightDistance < 20 || leftDistance < 20) {
@@ -199,8 +199,8 @@ void RobotNavigation::handleObstacleAvoidance(unsigned long currentTime) {
 
     case 6:
       // Step 6: Search for line or timeout
-      if (analogRead(LINE_SENSOR_LEFT) < LINE_THRESHOLD &&
-          analogRead(LINE_SENSOR_RIGHT) < LINE_THRESHOLD) {
+      if (digitalRead(LINE_SENSOR_LEFT) == LOW &&
+          digitalRead(LINE_SENSOR_RIGHT) == LOW) {
         motor->moveForward(90);
 
         // Timeout failsafe (5 seconds)

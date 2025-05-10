@@ -6,10 +6,10 @@
 #include "UltrasonicSensor.h"
 #include <Adafruit_LiquidCrystal.h>
 
-// Line sensor analog pins
-#define LINE_SENSOR_LEFT A0    // Left line sensor analog input
-#define LINE_SENSOR_RIGHT A1   // Right line sensor analog input
-#define LINE_THRESHOLD 100     // Values equal or above this threshold indicate the line is detected
+// Line sensor digital pins
+#define LINE_SENSOR_LEFT 12    // Left line sensor analog input
+#define LINE_SENSOR_RIGHT 13   // Right line sensor analog input
+
 
 #define DEBUG_USE_LCD          // To disable LCD for real experiment comment this out
 
