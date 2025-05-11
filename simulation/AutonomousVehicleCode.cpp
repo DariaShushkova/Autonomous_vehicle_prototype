@@ -15,9 +15,8 @@
 #define LEFT_ECHO_PIN 9    // Echo pin for left ultrasonic sensor
 
 // Define pins for line sensors
-#define LINE_SENSOR_LEFT A0    // Left line sensor analog input
-#define LINE_SENSOR_RIGHT A1   // Right line sensor analog input
-#define LINE_THRESHOLD 100     // Values equal or above this threshold indicate the line is detected
+#define LINE_SENSOR_LEFT 13    // Left line sensor digital input
+#define LINE_SENSOR_RIGHT 12   // Right line sensor digital input
 
 #define DEBUG_USE_LCD          // To disable LCD, comment this out
 
@@ -218,8 +217,8 @@ class RobotNavigation {
       }
 
       // Read line sensors
-      int leftLine = analogRead(LINE_SENSOR_LEFT);
-      int rightLine = analogRead(LINE_SENSOR_RIGHT);
+      int leftLine = digitalRead(LINE_SENSOR_LEFT);
+      int rightLine = digitalRead(LINE_SENSOR_RIGHT);
 
       // Read obstacle sensors
       float rightDistance = rightSensor->getDistance();
@@ -228,13 +227,13 @@ class RobotNavigation {
       int newState;
 
       // Choose action based on sensor readings
-      if (leftLine >= LINE_THRESHOLD && rightLine >= LINE_THRESHOLD && rightDistance >= 20 && leftDistance >= 20) {
+      if (leftLine == HIGH && rightLine == HIGH && rightDistance >= 20 && leftDistance >= 20) {
         newState = FORWARD;  // Path clear
       }
-      else if (leftLine < LINE_THRESHOLD && rightLine >= LINE_THRESHOLD) {
+      else if (leftLine == LOW && rightLine == HIGH) {
         newState = LEFT;     // Left line lost: turn left
       }
-      else if (leftLine >= LINE_THRESHOLD && rightLine < LINE_THRESHOLD) {
+      else if (leftLine == HIGH && rightLine == LOW) {
         newState = RIGHT;    // Right line lost: turn right
       }
       else if (rightDistance < 20 || leftDistance < 20) {
@@ -333,8 +332,8 @@ class RobotNavigation {
 
         case 6:
           // Step 6: Search for line or timeout
-          if (analogRead(LINE_SENSOR_LEFT) < LINE_THRESHOLD &&
-              analogRead(LINE_SENSOR_RIGHT) < LINE_THRESHOLD) {
+          if (digitalRead(LINE_SENSOR_LEFT) == LOW &&
+              digitalRead(LINE_SENSOR_RIGHT) == LOW) {
             motor->moveForward(90);
 
             // Timeout failsafe (5 seconds)
