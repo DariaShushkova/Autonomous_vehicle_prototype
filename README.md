@@ -53,7 +53,7 @@ Autonomous Driving System (**ADS**) is a **Line Following and Obstacle Avoiding 
 
 ### Contributors
 
-- [Daria Shushkova](github.com/DariaShushkova)
-- [Andrey Sysoev](github.com/andrey-sysoev)
-- [Mohammed Amer](github.com/amer195)
-- [SamRB-dev](github.com/SamRB-dev)
+- [Daria Shushkova](https://github.com/DariaShushkova)
+- [Andrey Sysoev](https://github.com/andrey-sysoev)
+- [Mohammed Amer](https://github.com/amer195)
+- [SamRB-dev](https://github.com/SamRB-dev)
