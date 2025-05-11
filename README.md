@@ -1,6 +1,7 @@
 <div align="center">
 
-<h1>Autonomous Driving System</h1>
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=25&pause=1000&width=435&lines=Autonomous+Driving+System)](https://git.io/typing-svg)
+
 
 Autonomous Driving System (**ADS**) is a **Line Following and Obstacle Avoiding Robot** built as semester project for **System Engineering & Prototyping** module at Hochschule Hamm-Lippstadt.
 
