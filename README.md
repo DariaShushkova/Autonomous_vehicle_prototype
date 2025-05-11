@@ -35,9 +35,10 @@ Autonomous Driving System (**ADS**) is a **Line Following and Obstacle Avoiding 
 
 
 ### Demo
+
 **TBA**
 
-### Components 
+### Components
 
 1. chassis
 2. DC Motors x2
@@ -48,8 +49,10 @@ Autonomous Driving System (**ADS**) is a **Line Following and Obstacle Avoiding 
 7. Color Sensor
 8. Battery
 9. Breadboard
+10. Arduino
 
 ### Contributors
+
 - [Daria Shushkova](github.com/DariaShushkova)
 - [Andrey Sysoev](github.com/andrey-sysoev)
 - [Mohammed Amer](github.com/amer195)
