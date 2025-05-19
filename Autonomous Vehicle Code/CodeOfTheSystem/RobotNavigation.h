@@ -7,8 +7,8 @@
 #include <Adafruit_LiquidCrystal.h>
 
 // Line sensor digital pins
-#define LINE_SENSOR_LEFT 12    // Left line sensor analog input
-#define LINE_SENSOR_RIGHT 13   // Right line sensor analog input
+#define LINE_SENSOR_LEFT 13    // Left line sensor analog input
+#define LINE_SENSOR_RIGHT 12   // Right line sensor analog input
 
 
 #define DEBUG_USE_LCD          // To disable LCD for real experiment comment this out
