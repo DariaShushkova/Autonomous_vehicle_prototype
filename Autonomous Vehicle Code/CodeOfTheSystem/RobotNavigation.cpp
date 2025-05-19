@@ -94,7 +94,7 @@ void RobotNavigation::updateNavigation(unsigned long currentTime) {
   int newState;
 
   // Choose action based on sensor readings
-  if (leftLine == HIGH && rightLine == HIGH && rightDistance >= 20 && leftDistance >= 20) {
+  if (leftLine == HIGH && rightLine == HIGH && (rightDistance >= 20 || rightDistance == 0) && (leftDistance >= 20 || leftDistance == 0)) {
     newState = FORWARD;  // Path clear
   }
   else if (leftLine == LOW && rightLine == HIGH) {
@@ -103,7 +103,7 @@ void RobotNavigation::updateNavigation(unsigned long currentTime) {
   else if (leftLine == HIGH && rightLine == LOW) {
     newState = RIGHT;    // Right line lost: turn right
   }
-  else if (rightDistance < 20 || leftDistance < 20) {
+  else if ((rightDistance < 20 && rightDistance != 0) || (leftDistance < 20 && leftDistance != 0)) {
     newState = OBSTACLE_AVOID;  // Obstacle detected
   }
   else {
@@ -146,7 +146,7 @@ void RobotNavigation::handleObstacleAvoidance(unsigned long currentTime) {
     case 0:
       // Step 0: Move backward until obstacle cleared
       motor->moveBackward(90);
-      if (rightDistance >= 20 && leftDistance >= 20) {
+      if ((rightDistance >= 20 || rightDistance == 0) && (leftDistance >= 20 || leftDistance == 0)) {
         obstacleStep++;
         obstacleStartTime = currentTime;
       }
