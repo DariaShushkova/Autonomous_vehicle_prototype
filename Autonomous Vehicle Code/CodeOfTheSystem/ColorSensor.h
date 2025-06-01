@@ -11,7 +11,14 @@
 #define COLOR_SENSOR_OUTPUT_PIN 8 // Change accordingly
 
 class ColorSensor {
+    private:
+        int colorRedFrequency; // Frequency for red color
+        int colorGreenFrequency; // Frequency for green color
+        int colorBlueFrequency; // Frequency for blue color
+
     public:
         void ColorSensorInit(); // Initialize color sensor
+        void ColorSensorObserve(); // Observe color sensor input
 };
+
 #endif
