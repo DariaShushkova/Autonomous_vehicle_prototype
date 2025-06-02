@@ -27,6 +27,12 @@
 #define STOPPED 3
 #define OBSTACLE_AVOID 4
 
+// Speed configurations
+#define speedOnForward 150
+#define speedOnLeft 90
+#define speedOnRight 90
+#define speedOnBackward 90
+
 // LCD initialization
 #ifdef DEBUG_USE_LCD
 Adafruit_LiquidCrystal lcd(0); // LCD with I2C address 0 (used in simulation)
@@ -168,21 +174,21 @@ class RobotNavigation {
     #ifdef DEBUG_USE_LCD
           lcd.print("Moving Forward");
     #endif
-          motor->moveForward(200);   // Drive forward at speed 200
+          motor->moveForward(speedOnForward);   // Drive forward at speed 200
           break;
 
         case LEFT:
     #ifdef DEBUG_USE_LCD
           lcd.print("Turning Left");
     #endif
-          motor->turnLeft(90);       // Slow turn left
+          motor->turnLeft(speedOnLeft);       // Slow turn left
           break;
 
         case RIGHT:
     #ifdef DEBUG_USE_LCD
           lcd.print("Turning Right");
     #endif
-          motor->turnRight(90);      // Slow turn right
+          motor->turnRight(speedOnRight);      // Slow turn right
           break;
 
         case OBSTACLE_AVOID:
@@ -278,7 +284,7 @@ class RobotNavigation {
       switch (obstacleStep) {
         case 0:
           // Step 0: Move backward until obstacle cleared
-          motor->moveBackward(90);
+          motor->moveBackward(speedOnBackward);
           if ((rightDistance >= 20 || rightDistance == 0) && (leftDistance >= 20 || leftDistance == 0)) {
             obstacleStep++;
             obstacleStartTime = currentTime;
@@ -287,16 +293,15 @@ class RobotNavigation {
 
         case 1:
           // Step 1: Turn left to start bypass
-          motor->turnLeft(100);
+          motor->turnLeft(speedOnLeft);
           if (currentTime - obstacleStartTime >= 1000) {
             obstacleStep++;
             obstacleStartTime = currentTime;
           }
           break;
-
         case 2:
           // Step 2: Move forward around obstacle
-          motor->moveForward(100);
+          motor->moveForward(speedOnForward - 50);
           if (currentTime - obstacleStartTime >= 3000) {
             obstacleStep++;
             obstacleStartTime = currentTime;
@@ -305,7 +310,7 @@ class RobotNavigation {
 
         case 3:
           // Step 3: Turn right to realign
-          motor->turnRight(100);
+          motor->turnRight(speedOnRight);
           if (currentTime - obstacleStartTime >= 1000) {
             obstacleStep++;
             obstacleStartTime = currentTime;
@@ -314,7 +319,7 @@ class RobotNavigation {
 
         case 4:
           // Step 4: Move forward again
-          motor->moveForward(100);
+          motor->moveForward(speedOnForward - 50);
           if (currentTime - obstacleStartTime >= 3000) {
             obstacleStep++;
             obstacleStartTime = currentTime;
@@ -323,7 +328,7 @@ class RobotNavigation {
 
         case 5:
           // Step 5: Turn right again to face line
-          motor->turnRight(100);
+          motor->turnRight(speedOnRight);
           if (currentTime - obstacleStartTime >= 1000) {
             obstacleStep++;
             obstacleStartTime = currentTime;
@@ -334,7 +339,7 @@ class RobotNavigation {
           // Step 6: Search for line or timeout
           if (digitalRead(LINE_SENSOR_LEFT) == LOW &&
               digitalRead(LINE_SENSOR_RIGHT) == LOW) {
-            motor->moveForward(90);
+            motor->moveForward(speedOnForward - 50);
 
             // Timeout failsafe (5 seconds)
             if (currentTime - obstacleStartTime >= 5000) {
