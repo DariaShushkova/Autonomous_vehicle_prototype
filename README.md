@@ -34,9 +34,9 @@ Autonomous Driving System (**ADS**) is a **Line Following and Obstacle Avoiding 
     - [Documenation](https://github.com/DariaShushkova/Autonomous_vehicle_prototype/tree/main/simulation)
 
 6. Corrent and Voltage Measurement
-    - Directory: CurrentAndVoltageMeasurement
-    - Contents: Images of voltage and current measurements for all components
-    -[Documentation](https://github.com/DariaShushkova/Autonomous_vehicle_prototype/tree/main/CurrentAndVoltageMeasurements)
+    - Directory: CurrentAndVoltageMeasurement/
+    - Contents: Images of voltage and current measurements for all components.
+    - [Documentation](https://github.com/DariaShushkova/Autonomous_vehicle_prototype/tree/main/CurrentAndVoltageMeasurements)
 
 7. Unit Testing
     - Directory: Software Testing
