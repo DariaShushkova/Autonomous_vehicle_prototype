@@ -1,0 +1,42 @@
+15:04:25.445 -> Left IR: 0	Right IR: 0
+15:04:25.445 -> Left Ultrasonic: 0.00 cm	Right Ultrasonic: 0.00 cm
+15:04:25.677 -> Left IR: 0	Right IR: 0
+15:04:25.677 -> Left Ultrasonic: 0.00 cm	Right Ultrasonic: 128.49 cm
+15:04:25.930 -> Left IR: 0	Right IR: 0
+15:04:25.930 -> Left Ultrasonic: 0.00 cm	Right Ultrasonic: 0.00 cm
+15:04:26.182 -> Left IR: 0	Right IR: 0
+15:04:26.182 -> Left Ultrasonic: 0.00 cm	Right Ultrasonic: 0.00 cm
+15:04:26.434 -> Left IR: 0	Right IR: 0  
+15:04:26.434 -> Left Ultrasonic: 0.00 cm	Right Ultrasonic: 142.75 cm  
+15:04:26.677 -> Left IR: 0	Right IR: 0  
+15:04:26.677 -> Left Ultrasonic: 0.00 cm	Right Ultrasonic: 125.30 cm  
+15:04:26.920 -> Left IR: 0	Right IR: 0  
+15:04:26.920 -> Left Ultrasonic: 0.00 cm	Right Ultrasonic: 85.15 cm  
+15:04:27.162 -> Left IR: 0	Right IR: 1  
+15:04:27.162 -> Left Ultrasonic: 0.00 cm	Right Ultrasonic: 32.40 cm  
+15:04:27.405 -> Left IR: 0	Right IR: 1  
+15:04:27.405 -> Left Ultrasonic: 0.00 cm	Right Ultrasonic: 18.90 cm  
+15:04:27.648 -> Left IR: 0	Right IR: 1  
+15:04:27.648 -> Left Ultrasonic: 0.00 cm	Right Ultrasonic: 8.75 cm  
+15:04:27.890 -> Left IR: 0	Right IR: 1  
+15:04:27.890 -> Left Ultrasonic: 0.00 cm	Right Ultrasonic: 0.00 cm  
+15:04:28.133 -> Left IR: 1	Right IR: 1  
+15:04:28.133 -> Left Ultrasonic: 5.20 cm	Right Ultrasonic: 0.00 cm
+15:04:28.376 -> Left IR: 1	Right IR: 1  
+15:04:28.376 -> Left Ultrasonic: 3.80 cm	Right Ultrasonic: 12.50 cm  
+15:04:28.619 -> Left IR: 1	Right IR: 0  
+15:04:28.619 -> Left Ultrasonic: 2.15 cm	Right Ultrasonic: 35.20 cm  
+15:04:28.862 -> Left IR: 1	Right IR: 0  
+15:04:28.862 -> Left Ultrasonic: 1.80 cm	Right Ultrasonic: 72.40 cm  
+15:04:29.105 -> Left IR: 1	Right IR: 0  
+15:04:29.105 -> Left Ultrasonic: 5.60 cm	Right Ultrasonic: 115.30 cm  
+15:04:29.348 -> Left IR: 0	Right IR: 0  
+15:04:29.348 -> Left Ultrasonic: 12.90 cm	Right Ultrasonic: 0.00 cm  
+15:04:29.591 -> Left IR: 0	Right IR: 0  
+15:04:29.591 -> Left Ultrasonic: 25.40 cm	Right Ultrasonic: 0.00 cm  
+15:04:29.834 -> Left IR: 0	Right IR: 1  
+15:04:29.834 -> Left Ultrasonic: 38.70 cm	Right Ultrasonic: 8.20 cm  
+15:04:30.077 -> Left IR: 0	Right IR: 1  
+15:04:30.077 -> Left Ultrasonic: 51.30 cm	Right Ultrasonic: 5.50 cm  
+15:04:30.320 -> Left IR: 0	Right IR: 1  
+15:04:30.320 -> Left Ultrasonic: 65.80 cm	Right Ultrasonic: 2.10 cm
