@@ -7,6 +7,13 @@ const int LEFT = 1;
 const int RIGHT = 2;
 const int STOPPED = 3;
 const int OBSTACLE_AVOID = 4;
+const int OBSTACLE_BACKUP = 5;
+const int OBSTACLE_TURN_LEFT = 6;
+const int OBSTACLE_BYPASS1 = 7;
+const int OBSTACLE_TURN_RIGHT1 = 8;
+const int OBSTACLE_BYPASS2 = 9;
+const int OBSTACLE_TURN_RIGHT2 = 10;
+const int OBSTACLE_SEARCH_LINE = 11;
 
 const int speedOnForward = 150;
 const int speedOnLeft = 90;
@@ -14,12 +21,12 @@ const int speedOnRight = 90;
 const int speedOnBackward = 90;
 
 // ==== IR SENSORS ====
-bool LINE_SENSOR_LEFT = false;   // HIGH when on line
+bool LINE_SENSOR_LEFT = true;   // HIGH when on line
 bool LINE_SENSOR_RIGHT = true;  // HIGH when on line
 
 // ==== ULTRASONIC SENSORS ====
-int rightDistance = 0;  // &gt;20cm = no obstacle
-int leftDistance = 0;   // &gt;20cm = no obstacle
+int rightDistance = 19;  // &gt;20cm = no obstacle
+int leftDistance = 19;   // &gt;20cm = no obstacle
 
 // ==== ROBOT STATE VARIABLES ====
 int currentState = STOPPED;  // Initial state
@@ -46,18 +53,118 @@ clock obstacleClock = 0; // For avoidance sequence</declaration>
 		<location id="id4" x="-365" y="-68">
 			<name x="-374" y="-102">STOPPED</name>
 		</location>
+		<location id="id5" x="-773" y="272">
+			<name x="-816" y="238">OBSTACLE_BACKUP</name>
+		</location>
+		<location id="id6" x="-1011" y="314">
+			<name x="-1021" y="280">OBSTACLE_TURN_LEFT</name>
+		</location>
+		<location id="id7" x="-1392" y="365">
+			<name x="-1462" y="331">OBSTACLE_BYPASS1</name>
+		</location>
+		<location id="id8" x="-1139" y="-17">
+			<name x="-1224" y="-51">OBSTACLE_TURN_RIGHT2</name>
+		</location>
+		<location id="id9" x="-1394" y="153">
+			<name x="-1572" y="127">OBSTACLE_TURN_RIGHT1</name>
+		</location>
+		<location id="id10" x="-1139" y="153">
+			<name x="-1215" y="119">OBSTACLE_BYPASS2</name>
+		</location>
+		<location id="id11" x="-858" y="136">
+			<name x="-943" y="93">OBSTACLE_SEARCH_LINE</name>
+		</location>
 		<init ref="id4"/>
-		<transition id="id5">
-			<source ref="id3"/>
-			<target ref="id3"/>
-			<label kind="guard" x="-875" y="161">(rightDistance &lt; 20 &amp;&amp; rightDistance != 0) || 
-(leftDistance &lt; 20 &amp;&amp; leftDistance != 0)</label>
-			<label kind="assignment" x="-875" y="144">currentState = OBSTACLE_AVOID</label>
-			<nail x="-366" y="200"/>
-			<nail x="-528" y="200"/>
-			<nail x="-527" y="153"/>
+		<transition id="id12">
+			<source ref="id11"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-722" y="195">obstacleClock &gt;= 5</label>
+			<label kind="assignment" x="-816" y="161">currentState = STOPPED,
+terminated = true</label>
+			<nail x="-935" y="136"/>
+			<nail x="-935" y="212"/>
+			<nail x="-536" y="212"/>
+			<nail x="-536" y="0"/>
+			<nail x="-399" y="0"/>
+			<nail x="-400" y="-68"/>
 		</transition>
-		<transition id="id6">
+		<transition id="id13">
+			<source ref="id11"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-646" y="-280">LINE_SENSOR_LEFT ==true || LINE_SENSOR_RIGHT == true</label>
+			<label kind="assignment" x="-807" y="-297">currentState = FORWARD,
+terminated = true</label>
+			<nail x="-654" y="136"/>
+			<nail x="-654" y="-280"/>
+			<nail x="-153" y="-280"/>
+			<nail x="-153" y="-331"/>
+		</transition>
+		<transition id="id14">
+			<source ref="id8"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-875" y="34">obstacleClock &gt;= 1</label>
+			<label kind="assignment" x="-1020" y="17">currentState = OBSTACLE_SEARCH_LINE,
+obstacleClock = 0</label>
+			<nail x="-1011" y="-17"/>
+			<nail x="-858" y="-17"/>
+			<nail x="-858" y="68"/>
+		</transition>
+		<transition id="id15">
+			<source ref="id10"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-1232" y="25">obstacleClock &gt;= 3</label>
+			<label kind="assignment" x="-1394" y="8">currentState = OBSTACLE_TURN_RIGHT2,
+obstacleClock = 0</label>
+		</transition>
+		<transition id="id16">
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="guard" x="-1139" y="187">obstacleClock &gt;= 1</label>
+			<label kind="assignment" x="-1292" y="161">currentState = OBSTACLE_BYPASS2,
+obstacleClock = 0</label>
+			<nail x="-1309" y="153"/>
+		</transition>
+		<transition id="id17">
+			<source ref="id7"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-1487" y="204">obstacleClock &gt;= 3</label>
+			<label kind="assignment" x="-1640" y="178">currentState = OBSTACLE_TURN_RIGHT1,
+obstacleClock = 0</label>
+			<nail x="-1394" y="314"/>
+			<nail x="-1394" y="255"/>
+			<nail x="-1394" y="221"/>
+			<nail x="-1394" y="212"/>
+			<nail x="-1394" y="204"/>
+		</transition>
+		<transition id="id18">
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-1343" y="399">obstacleClock &gt;= 1</label>
+			<label kind="assignment" x="-1504" y="374">currentState = OBSTACLE_BYPASS1,
+obstacleClock = 0</label>
+			<nail x="-1011" y="365"/>
+			<nail x="-1190" y="365"/>
+			<nail x="-1309" y="365"/>
+		</transition>
+		<transition id="id19">
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-1139" y="365">(rightDistance &gt;= 20 || rightDistance == 0) &amp;&amp; 
+(leftDistance &gt;= 20 || leftDistance == 0)</label>
+			<label kind="assignment" x="-1130" y="323">currentState = OBSTACLE_TURN_LEFT,
+obstacleClock = 0</label>
+			<nail x="-816" y="272"/>
+			<nail x="-816" y="314"/>
+		</transition>
+		<transition id="id20">
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="assignment" x="-705" y="272">currentState = OBSTACLE_BACKUP</label>
+			<nail x="-365" y="238"/>
+			<nail x="-442" y="238"/>
+			<nail x="-442" y="272"/>
+		</transition>
+		<transition id="id21">
 			<source ref="id0"/>
 			<target ref="id0"/>
 			<label kind="guard" x="748" y="374">LINE_SENSOR_LEFT == true &amp;&amp; 
@@ -67,7 +174,7 @@ LINE_SENSOR_RIGHT == false &amp;&amp;
 			<label kind="assignment" x="748" y="348">currentState = RIGHT</label>
 			<nail x="739" y="383"/>
 		</transition>
-		<transition id="id7">
+		<transition id="id22">
 			<source ref="id2"/>
 			<target ref="id2"/>
 			<label kind="guard" x="714" y="-178">LINE_SENSOR_LEFT == false &amp;&amp; 
@@ -79,7 +186,7 @@ LINE_SENSOR_RIGHT == true &amp;&amp;
 			<nail x="714" y="-136"/>
 			<nail x="714" y="-85"/>
 		</transition>
-		<transition id="id8">
+		<transition id="id23">
 			<source ref="id1"/>
 			<target ref="id1"/>
 			<label kind="guard" x="-25" y="-399">LINE_SENSOR_LEFT == true &amp;&amp; 
@@ -91,7 +198,7 @@ LINE_SENSOR_RIGHT == true &amp;&amp;
 			<nail x="-119" y="-374"/>
 			<nail x="-76" y="-374"/>
 		</transition>
-		<transition id="id9">
+		<transition id="id24">
 			<source ref="id4"/>
 			<target ref="id3"/>
 			<label kind="guard" x="-637" y="-212">((rightDistance &lt; 20 &amp;&amp; rightDistance != 0) || 
@@ -105,21 +212,21 @@ terminated == false</label>
 			<nail x="-603" y="-76"/>
 			<nail x="-603" y="154"/>
 		</transition>
-		<transition id="id10">
+		<transition id="id25">
 			<source ref="id4"/>
 			<target ref="id2"/>
-			<label kind="guard" x="-1079" y="-26">LINE_SENSOR_LEFT == false &amp;&amp; 
+			<label kind="guard" x="-969" y="-136">LINE_SENSOR_LEFT == false &amp;&amp; 
 LINE_SENSOR_RIGHT == true &amp;&amp; 
 (rightDistance &gt;= 20 || rightDistance == 0) &amp;&amp; 
 (leftDistance &gt;= 20 || leftDistance == 0) &amp;&amp;
 terminated == false</label>
-			<label kind="assignment" x="-1079" y="-43">currentState = LEFT</label>
+			<label kind="assignment" x="-943" y="-153">currentState = LEFT</label>
 			<nail x="-748" y="-68"/>
 			<nail x="-748" y="34"/>
 			<nail x="178" y="33"/>
 			<nail x="663" y="34"/>
 		</transition>
-		<transition id="id11">
+		<transition id="id26">
 			<source ref="id4"/>
 			<target ref="id0"/>
 			<label kind="guard" x="-765" y="424">LINE_SENSOR_LEFT == true &amp;&amp; 
@@ -133,7 +240,7 @@ terminated == false</label>
 			<nail x="119" y="408"/>
 			<nail x="663" y="407"/>
 		</transition>
-		<transition id="id12">
+		<transition id="id27">
 			<source ref="id0"/>
 			<target ref="id4"/>
 			<label kind="guard" x="102" y="212">LINE_SENSOR_LEFT == false &amp;&amp; 
@@ -145,7 +252,7 @@ terminated = true</label>
 			<nail x="85" y="255"/>
 			<nail x="85" y="-68"/>
 		</transition>
-		<transition id="id13">
+		<transition id="id28">
 			<source ref="id2"/>
 			<target ref="id4"/>
 			<label kind="guard" x="391" y="-178">LINE_SENSOR_LEFT == false &amp;&amp; 
@@ -157,7 +264,7 @@ terminated = true</label>
 			<nail x="-119" y="-136"/>
 			<nail x="-365" y="-136"/>
 		</transition>
-		<transition id="id14">
+		<transition id="id29">
 			<source ref="id1"/>
 			<target ref="id4"/>
 			<label kind="guard" x="-314" y="204">LINE_SENSOR_LEFT == false &amp;&amp; 
@@ -170,7 +277,7 @@ terminated = true</label>
 			<nail x="-323" y="119"/>
 			<nail x="-365" y="119"/>
 		</transition>
-		<transition id="id15">
+		<transition id="id30">
 			<source ref="id0"/>
 			<target ref="id2"/>
 			<label kind="guard" x="221" y="76">LINE_SENSOR_LEFT == false &amp;&amp; 
@@ -182,7 +289,7 @@ LINE_SENSOR_RIGHT == true &amp;&amp;
 			<nail x="399" y="68"/>
 			<nail x="663" y="68"/>
 		</transition>
-		<transition id="id16">
+		<transition id="id31">
 			<source ref="id3"/>
 			<target ref="id2"/>
 			<label kind="guard" x="1266" y="-93">LINE_SENSOR_LEFT == false &amp;&amp; 
@@ -193,7 +300,7 @@ LINE_SENSOR_RIGHT == true &amp;&amp;
 			<nail x="1258" y="153"/>
 			<nail x="1258" y="-85"/>
 		</transition>
-		<transition id="id17">
+		<transition id="id32">
 			<source ref="id3"/>
 			<target ref="id1"/>
 			<label kind="guard" x="-365" y="-552">LINE_SENSOR_LEFT == true &amp;&amp; 
@@ -205,7 +312,7 @@ leftDistance &gt;= 20.0</label>
 			<nail x="-365" y="-467"/>
 			<nail x="-76" y="-467"/>
 		</transition>
-		<transition id="id18">
+		<transition id="id33">
 			<source ref="id3"/>
 			<target ref="id0"/>
 			<label kind="guard" x="-110" y="297">LINE_SENSOR_LEFT == true &amp;&amp; 
@@ -216,7 +323,7 @@ LINE_SENSOR_RIGHT == false &amp;&amp;
 			<nail x="-365" y="331"/>
 			<nail x="272" y="331"/>
 		</transition>
-		<transition id="id19">
+		<transition id="id34">
 			<source ref="id1"/>
 			<target ref="id3"/>
 			<label kind="guard" x="-714" y="-374">(rightDistance &lt; 20.0 &amp;&amp; rightDistance != 0.0) || 
@@ -224,7 +331,7 @@ LINE_SENSOR_RIGHT == false &amp;&amp;
 			<label kind="assignment" x="-714" y="-331">currentState = OBSTACLE_AVOID</label>
 			<nail x="-365" y="-332"/>
 		</transition>
-		<transition id="id20">
+		<transition id="id35">
 			<source ref="id2"/>
 			<target ref="id3"/>
 			<label kind="guard" x="1207" y="204">(rightDistance &lt; 20 &amp;&amp; rightDistance != 0) || 
@@ -236,7 +343,7 @@ LINE_SENSOR_RIGHT == false &amp;&amp;
 			<nail x="42" y="187"/>
 			<nail x="42" y="153"/>
 		</transition>
-		<transition id="id21">
+		<transition id="id36">
 			<source ref="id0"/>
 			<target ref="id1"/>
 			<label kind="guard" x="1088" y="-433">LINE_SENSOR_LEFT == true &amp;&amp; 
@@ -248,7 +355,7 @@ LINE_SENSOR_RIGHT == true &amp;&amp;
 			<nail x="1079" y="-425"/>
 			<nail x="-76" y="-425"/>
 		</transition>
-		<transition id="id22">
+		<transition id="id37">
 			<source ref="id2"/>
 			<target ref="id1"/>
 			<label kind="guard" x="119" y="-76">LINE_SENSOR_LEFT == true &amp;&amp; 
@@ -260,7 +367,7 @@ LINE_SENSOR_RIGHT == true &amp;&amp;
 			<nail x="272" y="-42"/>
 			<nail x="-76" y="-42"/>
 		</transition>
-		<transition id="id23">
+		<transition id="id38">
 			<source ref="id1"/>
 			<target ref="id0"/>
 			<label kind="guard" x="314" y="434">LINE_SENSOR_LEFT == true &amp;&amp; 
@@ -274,7 +381,7 @@ LINE_SENSOR_RIGHT == false &amp;&amp;
 			<nail x="476" y="408"/>
 			<nail x="663" y="408"/>
 		</transition>
-		<transition id="id24">
+		<transition id="id39">
 			<source ref="id3"/>
 			<target ref="id4"/>
 			<label kind="guard" x="-357" y="-25">LINE_SENSOR_LEFT == false &amp;&amp; 
@@ -283,7 +390,7 @@ timeOut &gt;= searchTimeout</label>
 			<label kind="assignment" x="-357" y="34">currentState = STOPPED,
 terminated = true</label>
 		</transition>
-		<transition id="id25">
+		<transition id="id40">
 			<source ref="id0"/>
 			<target ref="id3"/>
 			<label kind="guard" x="-212" y="476">(rightDistance &lt; 20 &amp;&amp; rightDistance != 0) || 
@@ -292,7 +399,7 @@ terminated = true</label>
 			<nail x="663" y="518"/>
 			<nail x="-365" y="518"/>
 		</transition>
-		<transition id="id26">
+		<transition id="id41">
 			<source ref="id2"/>
 			<target ref="id0"/>
 			<label kind="guard" x="697" y="119">LINE_SENSOR_LEFT == true &amp;&amp; 
@@ -301,7 +408,7 @@ LINE_SENSOR_RIGHT == false &amp;&amp;
 (leftDistance &gt;= 20 || leftDistance == 0)</label>
 			<label kind="assignment" x="697" y="102">currentState = RIGHT</label>
 		</transition>
-		<transition id="id27">
+		<transition id="id42">
 			<source ref="id1"/>
 			<target ref="id2"/>
 			<label kind="guard" x="493" y="-340">LINE_SENSOR_LEFT == false &amp;&amp; 
@@ -312,7 +419,7 @@ LINE_SENSOR_RIGHT == true &amp;&amp;
 			<nail x="-76" y="-263"/>
 			<nail x="663" y="-263"/>
 		</transition>
-		<transition id="id28">
+		<transition id="id43">
 			<source ref="id4"/>
 			<target ref="id1"/>
 			<label kind="guard" x="-229" y="-756">LINE_SENSOR_LEFT == true &amp;&amp; 
