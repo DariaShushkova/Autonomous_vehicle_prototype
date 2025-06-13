@@ -10,6 +10,12 @@
 // Minimal effective speeds (L298N needs at least ~60 PWM)
 #define LEFT_SPEED 70  // Slightly higher for weaker left motor
 #define RIGHT_SPEED 70
+#define Left_echoPin 9
+#define Left_trigPin 8
+#define Right_echoPin 7
+#define Right_trigPin 6
+long left_duration, right_duration;
+float left_distance, right_distance;
 
 
 void setup() {
