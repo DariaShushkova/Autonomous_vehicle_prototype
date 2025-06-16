@@ -63,7 +63,7 @@ void loop() {
       delay(1000);
       stopMotors();
       delay(100);
-      turnRight();
+      turnLeft();
       delay(600);
       stopMotors();
       delay(100);
@@ -71,13 +71,12 @@ void loop() {
       delay(1350);
       stopMotors();
       delay(100);
-      turnLeft();
+      turnRight();
       delay(800);
       stopMotors();
       delay(100);
 
-      stopMotors();
-      delay(200);
+     
 
       // Try to find the line again using zigzag pattern
       bool foundLine = false;
@@ -114,7 +113,7 @@ void loop() {
       // Optimized failsafe - preserves original structure
       int attemptCount = 0;
       while (!foundLine && attemptCount < 3) {  // Limited endless loop with 3 attempts
-        turnLeft();
+        turnRight();
         delay(500);
         stopMotors();
         delay(150);
@@ -131,7 +130,7 @@ void loop() {
         // Reduced zigzag pattern for this attempt
         while (millis() - startTime < 2000 && !foundLine) {
           turnLeft();
-          delay(300);
+          delay(360);
           stopMotors();
           delay(150);
           left_IR = digitalRead(leftIR);
@@ -143,7 +142,7 @@ void loop() {
           }
 
           turnRight();
-          delay(265);
+          delay(320);
           stopMotors();
           delay(150);
           left_IR = digitalRead(leftIR);
