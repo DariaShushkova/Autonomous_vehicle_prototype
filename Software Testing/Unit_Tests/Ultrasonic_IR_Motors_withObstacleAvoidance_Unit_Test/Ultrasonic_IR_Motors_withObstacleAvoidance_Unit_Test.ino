@@ -9,7 +9,7 @@
 #define rightIR 12
 
 // Minimal effective speeds (L298N needs at least ~60 PWM)
-#define LEFT_SPEED 70  // Slightly higher for weaker left motor
+#define LEFT_SPEED 65  // Slightly higher for weaker left motor
 #define RIGHT_SPEED 65
 
 #define Left_echoPin 9
@@ -18,18 +18,19 @@
 #define Right_trigPin 6
 
 void stopMotors();
-void turnLeft(int speed=120);
-void turnRight(int speed=120);
+void turnLeft(int speed = 140);
+void turnRight(int speed = 140);
 float getLeftDistance();
 float getRightDistance();
-void moveBackward(int speed=120);
-void moveForward(int speed=120);
+void moveBackward(int speed = 120);
+void moveForward(int speed = 120);
 
 long left_duration, right_duration;
 float left_distance, right_distance;
 bool obstacle = 0;
 bool left_IR = digitalRead(leftIR);
 bool right_IR = digitalRead(rightIR);
+int state = 0;
 
 void setup() {
   pinMode(LEFT_MOTOR_SPEED_PIN, OUTPUT);
@@ -44,6 +45,7 @@ void setup() {
   pinMode(Left_echoPin, INPUT);
   pinMode(Right_trigPin, OUTPUT);
   pinMode(Right_echoPin, INPUT);
+  delay(400);
 }
 
 void loop() {
@@ -52,10 +54,14 @@ void loop() {
 
   if (left_IR == HIGH && right_IR == LOW) {
     stopMotors();
+    state = 1;
+
     while (digitalRead(rightIR) == LOW) turnLeft();
     stopMotors();
   } else if (left_IR == LOW && right_IR == HIGH) {
     stopMotors();
+    state = 2;
+
     while (digitalRead(leftIR) == LOW) turnRight();
     stopMotors();
   }
@@ -72,16 +78,16 @@ void loop() {
     stopMotors();
     delay(400);
     turnLeft(80);
-    delay(400);
+    delay(550);
     stopMotors();
     delay(400);
     moveForward(80);
-    delay(1000);
+    delay(1300);
     stopMotors();
     delay(400);
-    
+
     turnRight(80);
-    delay(1200);
+    delay(930);
     stopMotors();
     delay(200);
 
@@ -132,40 +138,19 @@ void loop() {
       }
     }
 
-    if (!foundLine) {
-      // Failsafe loop
-      for (int i = 0; i < 3; i++) {
-        turnRight();
-        delay(500);
-        stopMotors();
-        delay(200);
-        left_IR = digitalRead(leftIR);
-        right_IR = digitalRead(rightIR);
-        if (left_IR == HIGH || right_IR == HIGH) {
-          moveForward();
-          delay(300);
-          stopMotors();
-          delay(200);
-          foundLine = true;
-          break;
-        }
-        turnLeft();
-        delay(500);
-        stopMotors();
-        delay(200);
-      }
-    }
 
-    if (!foundLine) {
-      // Final fallback
-      moveForward();
-      delay(1000);
+  } else if (left_IR == LOW && right_IR == LOW) {
+    if (state == 1) {
       stopMotors();
+      while (digitalRead(rightIR) == LOW) turnRight();
+      stopMotors();
+      state = 0;
+    } else if (state == 2) {
+      stopMotors();
+      while (digitalRead(leftIR) == LOW) turnLeft();
+      stopMotors();
+      state = 0;
     }
-
-    obstacle = 0;
-  } else {
-    moveForward();
   }
 }
 
@@ -194,7 +179,7 @@ float getRightDistance() {
 
 void moveForward(int speed) {
   analogWrite(LEFT_MOTOR_SPEED_PIN, speed);
-  analogWrite(RIGHT_MOTOR_SPEED_PIN,  speed);
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, speed);
   digitalWrite(LEFT_MOTOR_FORWARD_PIN, LOW);
   digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
   digitalWrite(RIGHT_MOTOR_FORWARD_PIN, LOW);
