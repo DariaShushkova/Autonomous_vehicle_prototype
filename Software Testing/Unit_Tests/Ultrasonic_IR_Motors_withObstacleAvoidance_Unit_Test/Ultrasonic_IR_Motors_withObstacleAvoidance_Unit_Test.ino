@@ -24,7 +24,8 @@ float getLeftDistance();
 float getRightDistance();
 void moveBackward(int speed = 120);
 void moveForward(int speed = 120);
-
+void rotateLeft(int speed=120);
+void rotateRight(int speed=120);
 long left_duration, right_duration;
 float left_distance, right_distance;
 bool obstacle = 0;
@@ -51,7 +52,14 @@ void setup() {
 void loop() {
   left_IR = digitalRead(leftIR);
   right_IR = digitalRead(rightIR);
-
+  float checkLeft = getLeftDistance();
+  float checkRight = getRightDistance();
+  if ((checkLeft < 20 && checkLeft > 3) || (checkRight < 20 && checkRight > 3)) {
+    state = 0;
+    stopMotors();
+    delay(300);
+    avoidObstacle();
+  }
   if (left_IR == HIGH && right_IR == LOW) {
     stopMotors();
     state = 1;
@@ -64,81 +72,6 @@ void loop() {
 
     while (digitalRead(leftIR) == LOW) turnRight();
     stopMotors();
-  }
-
-  float leftDist = getLeftDistance();
-  float rightDist = getRightDistance();
-
-  if ((leftDist > 2 && leftDist < 30) || (rightDist > 2 && rightDist < 30)) {
-    obstacle = 1;
-    stopMotors();
-    delay(300);
-    moveBackward(80);
-    delay(500);
-    stopMotors();
-    delay(400);
-    turnLeft(80);
-    delay(550);
-    stopMotors();
-    delay(400);
-    moveForward(80);
-    delay(1300);
-    stopMotors();
-    delay(400);
-
-    turnRight(80);
-    delay(930);
-    stopMotors();
-    delay(200);
-
-    bool foundLine = false;
-    unsigned long startTime = millis();
-
-    while (millis() - startTime < 7000) {
-      turnLeft();
-      delay(100);
-      stopMotors();
-      delay(100);
-      left_IR = digitalRead(leftIR);
-      right_IR = digitalRead(rightIR);
-      if (left_IR == HIGH || right_IR == HIGH) {
-        stopMotors();
-        delay(100);
-        if (left_IR == HIGH)
-          while (digitalRead(leftIR) == HIGH) turnLeft();
-        if (right_IR == HIGH)
-          while (digitalRead(rightIR) == HIGH) turnRight();
-        stopMotors();
-        delay(100);
-        moveForward();
-        delay(100);
-        foundLine = true;
-        break;
-      }
-
-      turnRight();
-      delay(150);
-      stopMotors();
-      delay(100);
-      left_IR = digitalRead(leftIR);
-      right_IR = digitalRead(rightIR);
-      if (left_IR == HIGH || right_IR == HIGH) {
-        stopMotors();
-        delay(100);
-        if (left_IR == HIGH)
-          while (digitalRead(leftIR) == HIGH) turnLeft();
-        if (right_IR == HIGH)
-          while (digitalRead(rightIR) == HIGH) turnRight();
-        stopMotors();
-        delay(100);
-        moveForward();
-        delay(100);
-        foundLine = true;
-        break;
-      }
-    }
-
-
   } else if (left_IR == LOW && right_IR == LOW) {
     if (state == 1) {
       stopMotors();
@@ -154,6 +87,172 @@ void loop() {
   }
 }
 
+
+void avoidObstacle() {
+  stopMotors();
+  delay(100);
+  moveBackward(80);
+  delay(200);
+  rotateLeft(80);
+  delay(600);
+  stopMotors();
+  delay(1000);
+  float leftUltrasonic= getLeftDistance();
+  float rightUltrasonic = getRightDistance();
+  if ((leftUltrasonic <100 && leftUltrasonic >3) ||(rightUltrasonic <100 && rightUltrasonic >3) ){
+    rotateRight(68);
+    while(true){
+      left_IR=digitalRead(leftIR);
+      right_IR=digitalRead(rightIR);
+      if(right_IR==HIGH){
+        stopMotors();
+        delay(500);
+        break;
+      }
+    }
+    rotateRight(75);
+    delay(500);
+    stopMotors();
+    delay(700);
+    moveForward(75);
+    delay(750);
+    stopMotors();
+    delay(600);
+    rotateLeft(75);
+    delay(650);
+  stopMotors();
+    delay(700);
+
+
+
+
+    moveForward(75);
+    delay(800);
+    stopMotors();
+    delay(600);
+    turnLeft(75);
+    delay(600);
+    stopMotors();
+    delay(1000);
+    bool foundLine = false;
+    unsigned long startTime = millis();
+
+    while (millis() - startTime < 100000) {
+      turnLeft(120);
+      delay(110);
+      stopMotors();
+      delay(100);
+      left_IR = digitalRead(leftIR);
+      right_IR = digitalRead(rightIR);
+      if (left_IR == HIGH || right_IR == HIGH) {
+        stopMotors();
+        delay(100);
+        left_IR = digitalRead(leftIR);
+      right_IR = digitalRead(rightIR);
+        if (left_IR == HIGH)
+          while (digitalRead(rightIR) == HIGH) turnLeft();
+        if (right_IR == HIGH)
+          while (digitalRead(leftIR) == HIGH) turnRight();
+        stopMotors();
+        delay(100);
+        moveForward();
+        delay(100);
+        foundLine = true;
+        break;
+        return;
+      }
+
+
+      turnRight();
+      delay(100);
+      stopMotors();
+      delay(100);
+      left_IR = digitalRead(leftIR);
+      right_IR = digitalRead(rightIR);
+      if (left_IR == HIGH || right_IR == HIGH) {
+        stopMotors();
+        delay(100);
+        if (left_IR == HIGH)
+          while (digitalRead(leftIR) == HIGH) turnRight();
+        if (right_IR == HIGH)
+          while (digitalRead(rightIR) == HIGH) turnLeft();
+        stopMotors();
+        delay(100);
+        moveForward();
+        delay(100);
+        foundLine = true;
+        break;
+      }
+
+  }}else{
+    rotateRight(75);
+    delay(350);
+    stopMotors();
+    delay(500);
+    moveForward(70);
+    delay(900);
+    stopMotors();
+    delay(1000);
+    rotateRight(70);
+    delay(500);
+    stopMotors();
+    delay(500);
+
+
+    bool foundLine = false;
+    unsigned long startTime = millis();
+
+    while (millis() - startTime < 100000) {
+      turnLeft(120);
+      delay(110);
+      stopMotors();
+      delay(100);
+      left_IR = digitalRead(leftIR);
+      right_IR = digitalRead(rightIR);
+      if (left_IR == HIGH || right_IR == HIGH) {
+        stopMotors();
+        delay(100);
+        left_IR = digitalRead(leftIR);
+      right_IR = digitalRead(rightIR);
+        if (left_IR == HIGH)
+          while (digitalRead(rightIR) == HIGH) turnLeft();
+        if (right_IR == HIGH)
+          while (digitalRead(leftIR) == HIGH) turnRight();
+        stopMotors();
+        delay(100);
+        moveForward();
+        delay(100);
+        foundLine = true;
+        break;
+        return;
+      }
+      turnRight();
+      delay(100);
+      stopMotors();
+      delay(100);
+      left_IR = digitalRead(leftIR);
+      right_IR = digitalRead(rightIR);
+      if (left_IR == HIGH || right_IR == HIGH) {
+        stopMotors();
+        delay(100);
+        if (left_IR == HIGH)
+          while (digitalRead(leftIR) == HIGH) turnRight();
+        if (right_IR == HIGH)
+          while (digitalRead(rightIR) == HIGH) turnLeft();
+        stopMotors();
+        delay(100);
+        moveForward();
+        delay(100);
+        foundLine = true;
+        break;
+      }
+
+   
+
+  }
+  }
+  
+}
 
 float getLeftDistance() {
   digitalWrite(Left_trigPin, LOW);
@@ -218,4 +317,22 @@ void stopMotors() {
   digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
   digitalWrite(RIGHT_MOTOR_FORWARD_PIN, HIGH);
   digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
+}
+void rotateRight(int speed) {
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, speed);
+  analogWrite(LEFT_MOTOR_SPEED_PIN, speed);
+
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, HIGH);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
+}
+void rotateLeft(int speed) {
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, speed);
+  analogWrite(LEFT_MOTOR_SPEED_PIN, speed);
+
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, LOW);
 }
