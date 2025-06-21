@@ -24,8 +24,9 @@ float UltrasonicSensor::getDistance() {
   digitalWrite(trigPin, LOW);
 
   // Measure duration of echo signal (time between trigger and echo return)
-  long duration = pulseIn(echoPin, HIGH, 20000); // Timeout after 20ms
+  long duration = pulseIn(echoPin, HIGH, 22000); // Timeout after 22ms
+  if (duration == 0) return 1000;
 
   // Convert duration to distance in centimeters
-  return duration * 0.01723;  // Speed of sound formula
+  return duration * 0.034 / 2;
 }

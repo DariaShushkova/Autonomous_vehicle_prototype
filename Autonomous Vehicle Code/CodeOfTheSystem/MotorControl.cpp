@@ -1,44 +1,69 @@
 #include "MotorControl.h"
 
-// Internal helper function to apply motor direction and speed
-void MotorControl::setMotorStates(int leftSpeed, int rightSpeed,
-                                  int leftForward, int leftBackward,
-                                  int rightForward, int rightBackward) {
-  // Set PWM speeds for both motors
-  analogWrite(LEFT_MOTOR_SPEED_PIN, leftSpeed);
-  analogWrite(RIGHT_MOTOR_SPEED_PIN, rightSpeed);
-
-  // Set direction for left motor
-  digitalWrite(LEFT_MOTOR_FORWARD_PIN, leftForward);
-  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, leftBackward);
-
-  // Set direction for right motor
-  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, rightForward);
-  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, rightBackward);
-}
-
 // Move robot straight forward at given speed
 void MotorControl::moveForward(int speed) {
-  setMotorStates(speed, speed, HIGH, LOW, HIGH, LOW);
+  analogWrite(LEFT_MOTOR_SPEED_PIN, speed);
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, speed);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
 }
 
 // Move robot straight backward at given speed
 void MotorControl::moveBackward(int speed) {
-  setMotorStates(speed, speed, LOW, HIGH, LOW, HIGH);
+  analogWrite(LEFT_MOTOR_SPEED_PIN, speed);
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, speed);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, HIGH);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, LOW);
 }
 
-// Rotate robot to the left (left wheel backward, right wheel forward)
+// Turn robot to the left
 void MotorControl::turnLeft(int speed) {
-  setMotorStates(speed, speed, LOW, HIGH, HIGH, LOW);
+  analogWrite(LEFT_MOTOR_SPEED_PIN, speed);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, LOW);
 }
 
-// Rotate robot to the right (left wheel forward, right wheel backward)
+// Turn robot to the right
 void MotorControl::turnRight(int speed) {
-  setMotorStates(speed, speed, HIGH, LOW, LOW, HIGH);
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, speed);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
 }
 
-// Stop both motors by setting speed to 0
+// Stop robot
 void MotorControl::stopMotors() {
-  analogWrite(LEFT_MOTOR_SPEED_PIN, 0);
-  analogWrite(RIGHT_MOTOR_SPEED_PIN, 0);
+  analogWrite(LEFT_MOTOR_SPEED_PIN, 255);
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, 255);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, HIGH);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
+}
+
+// Rotate robot to the right
+void MotorControl::rotateRight(int speed) {
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, speed);
+  analogWrite(LEFT_MOTOR_SPEED_PIN, speed);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, HIGH);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
+}
+
+// Rotate robot to the left
+void MotorControl::rotateLeft(int speed) {
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, speed);
+  analogWrite(LEFT_MOTOR_SPEED_PIN, speed);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, LOW);
 }

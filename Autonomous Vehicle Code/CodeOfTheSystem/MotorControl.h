@@ -13,18 +13,14 @@
 #define RIGHT_MOTOR_BACKWARD_PIN 5    // Digital pin to move right motor backward
 
 class MotorControl {
-  private:
-    // Set speed and direction for both motors
-    void setMotorStates(int leftSpeed, int rightSpeed,
-                        int leftForward, int leftBackward,
-                        int rightForward, int rightBackward);
-
   public:
-    void moveForward(int speed);     // Move robot forward
-    void moveBackward(int speed);    // Move robot backward
-    void turnLeft(int speed);        // Turn robot left
-    void turnRight(int speed);       // Turn robot right
-    void stopMotors();               // Stop both motors
+    void moveForward(int speed);       // Move robot forward
+    void moveBackward(int speed);      // Move robot backward
+    void turnLeft(int speed);          // Turn robot left
+    void turnRight(int speed);         // Turn robot right
+    void rotateLeft(int speed);        // Rotate robot left
+    void rotateRight(int speed);       // Rotate robot right
+    void stopMotors();                 // Stop both motors
 };
 
 #endif
