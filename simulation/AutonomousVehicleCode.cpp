@@ -15,8 +15,8 @@
 #define LEFT_ECHO_PIN 9    // Echo pin for left ultrasonic sensor
 
 // Define pins for line sensors
-#define LINE_SENSOR_LEFT 12    // Left line sensor digital input
-#define LINE_SENSOR_RIGHT 13   // Right line sensor digital input
+#define LINE_SENSOR_LEFT 13    // Left line sensor digital input
+#define LINE_SENSOR_RIGHT 12   // Right line sensor digital input
 
 #define DEBUG_USE_LCD          // To disable LCD, comment this out
 
@@ -97,22 +97,22 @@ class MotorControl {
   public:
     // Move robot straight forward at given speed
     void moveForward(int speed) {
-      setMotorStates(speed, speed, HIGH, LOW, HIGH, LOW);
+      setMotorStates(speed, speed, HIGH, LOW, LOW, HIGH);
     }
 
     // Move robot straight backward at given speed
     void moveBackward(int speed) {
-      setMotorStates(speed, speed, LOW, HIGH, LOW, HIGH);
+      setMotorStates(speed, speed, LOW, HIGH, HIGH, LOW);
     }
 
     // Rotate robot to the left (left wheel backward, right wheel forward)
     void turnLeft(int speed) {
-      setMotorStates(speed, speed, LOW, HIGH, HIGH, LOW);
+      setMotorStates(speed, speed, HIGH, LOW, HIGH, LOW);
     }
 
     // Rotate robot to the right (left wheel forward, right wheel backward)
     void turnRight(int speed) {
-      setMotorStates(speed, speed, HIGH, LOW, LOW, HIGH);
+      setMotorStates(speed, speed, LOW, HIGH, LOW, HIGH);
     }
 
     // Stop both motors by setting speed to 0
