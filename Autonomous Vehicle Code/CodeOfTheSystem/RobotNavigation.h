@@ -9,7 +9,7 @@
 #define LINE_SENSOR_LEFT 13    // Left line sensor analog input
 #define LINE_SENSOR_RIGHT 12   // Right line sensor analog input
 
-// Sensors configurations
+// Ultrasonic Sensors configurations
 #define minDistance 3
 #define maxDistance 20
 

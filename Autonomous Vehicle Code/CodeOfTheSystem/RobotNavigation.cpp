@@ -35,7 +35,7 @@ void RobotNavigation::setRobotState(int state) {
       break;
 
     case LINE_SEARCH:
-      handleLineSearch();
+      handleLineSearch(); // Begin line re-acquisition routine
       break;
   }
 }
@@ -156,6 +156,7 @@ void RobotNavigation::handleObstacleAvoidance() {
 
 void RobotNavigation::handleLineSearch() {
   bool foundLine = false;
+  unsigned long startTime = millis();
   while (millis() - startTime < searchTimeout) {
     motor->turnLeft(120);
     delay(110);
@@ -169,9 +170,9 @@ void RobotNavigation::handleLineSearch() {
       leftLine = digitalRead(LINE_SENSOR_LEFT);
       rightLine = digitalRead(LINE_SENSOR_RIGHT);
       if (leftLine == HIGH)
-        while (rightLine == HIGH) turnLeft(DefaultTurnSpeed);
+        while (rightLine == HIGH) motor->turnLeft(DefaultTurnSpeed);
       if (rightLine == HIGH)
-        while (leftLine == HIGH) turnRight(DefaultTurnSpeed);
+        while (leftLine == HIGH) motor->turnRight(DefaultTurnSpeed);
       motor->stopMotors();
       delay(100);
       motor->moveForward(DefaultForwardSpeed);
@@ -191,9 +192,9 @@ void RobotNavigation::handleLineSearch() {
       motor->stopMotors();
       delay(100);
       if (leftLine == HIGH)
-        while (leftLine == HIGH) turnRight(DefaultTurnSpeed);
+        while (leftLine == HIGH) motor->turnRight(DefaultTurnSpeed);
       if (rightLine == HIGH)
-        while (rightLine == HIGH) turnLeft(DefaultTurnSpeed);
+        while (rightLine == HIGH) motor->turnLeft(DefaultTurnSpeed);
       motor->stopMotors();
       delay(100);
       motor->moveForward(DefaultForwardSpeed);
