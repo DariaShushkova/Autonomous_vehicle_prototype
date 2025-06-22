@@ -1,10 +1,11 @@
 #include "RobotNavigation.h"
 
 // Constructor: Assign passed sensor and motor objects
-RobotNavigation::RobotNavigation(UltrasonicSensor* right, UltrasonicSensor* left, MotorControl* motorControl) {
+RobotNavigation::RobotNavigation(UltrasonicSensor* right, UltrasonicSensor* left, MotorControl* motorControl, ColorSensor* red) {
   rightSensor = right;
   leftSensor = left;
   motor = motorControl;
+  red = red;
 }
 
 void RobotNavigation::begin() {
@@ -21,21 +22,23 @@ void RobotNavigation::setRobotState(int state) {
 
     case OBSTACLE_AVOID:
       obstacleStep = 0;
-      handleObstacleAvoidance();  // Start timing
+      handleObstacleAvoidance(); // Begin obstacle avoidance
       break;
 
     case LEFT:
-      while (digitalRead(LINE_SENSOR_RIGHT) == LOW) motor->turnLeft(DefaultTurnSpeed);  // Slow turn left
+      while (digitalRead(LINE_SENSOR_RIGHT) == LOW)
+          motor->turnLeft(DefaultTurnSpeed); // Turn left until the right IR won't lose the line
       motor->stopMotors();
       break;
 
     case RIGHT:
-      while (digitalRead(LINE_SENSOR_LEFT) == LOW) motor->turnRight(DefaultTurnSpeed);  // Slow turn left
+      while (digitalRead(LINE_SENSOR_LEFT) == LOW)
+          motor->turnRight(DefaultTurnSpeed); // Turn right until the left IR won't lose the line
       motor->stopMotors();
       break;
 
     case LINE_SEARCH:
-      handleLineSearch(); // Begin line re-acquisition routine
+      handleLineSearch(); // Begin line search
       break;
   }
 }
@@ -52,7 +55,9 @@ void RobotNavigation::updateNavigation() {
   float leftDistance = leftSensor->getDistance();
 
   // Choose action based on sensor readings
-  if ((rightDistance < maxDistance && rightDistance > minDistance) || (leftDistance < maxDistance && leftDistance > minDistance)) {
+  if (((rightDistance < maxDistance && rightDistance > minDistance) ||
+      (leftDistance < maxDistance && leftDistance > minDistance)) &&
+      !red->ColorSensorObserve()) {
     motor->stopMotors();
     delay(300);
     setRobotState(OBSTACLE_AVOID);  // Obstacle detected
@@ -99,7 +104,8 @@ void RobotNavigation::handleObstacleAvoidance() {
   float leftDistance = leftSensor->getDistance();
 
   // Obstacle detected
-  if ((rightDistance < 100 && rightDistance > 3) || (leftDistance < 100 && leftDistance > 3)) {
+  if ((rightDistance < 100 && rightDistance > 3) ||
+      (leftDistance < 100 && leftDistance > 3)) {
 
     // Rotate back on the line to switch the direction on bypass
     motor->rotateRight(68);
@@ -170,9 +176,11 @@ void RobotNavigation::handleLineSearch() {
       leftLine = digitalRead(LINE_SENSOR_LEFT);
       rightLine = digitalRead(LINE_SENSOR_RIGHT);
       if (leftLine == HIGH)
-        while (rightLine == HIGH) motor->turnLeft(DefaultTurnSpeed);
+        while (rightLine == HIGH)
+            motor->turnLeft(DefaultTurnSpeed);
       if (rightLine == HIGH)
-        while (leftLine == HIGH) motor->turnRight(DefaultTurnSpeed);
+        while (leftLine == HIGH)
+            motor->turnRight(DefaultTurnSpeed);
       motor->stopMotors();
       delay(100);
       motor->moveForward(DefaultForwardSpeed);

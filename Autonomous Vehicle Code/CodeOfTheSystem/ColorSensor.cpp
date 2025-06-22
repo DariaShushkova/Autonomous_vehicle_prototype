@@ -11,7 +11,7 @@ void ColorSensor::ColorSensorInit() {
     digitalWrite(COLOR_SENSOR_OUTPUT_FREQUENCY_INPUT_S1, LOW);  // Frequency scaling = 20%
 }
 
-void ColorSensor::ColorSensorObserve() {
+bool ColorSensor::ColorSensorObserve() {
     // RED
     digitalWrite(COLOR_SENSOR_PHOTODIODE_INPUT_S2, LOW);
     digitalWrite(COLOR_SENSOR_PHOTODIODE_INPUT_S3, LOW);
@@ -27,18 +27,14 @@ void ColorSensor::ColorSensorObserve() {
     digitalWrite(COLOR_SENSOR_PHOTODIODE_INPUT_S3, HIGH);
     colorBlueFrequency = pulseIn(COLOR_SENSOR_OUTPUT_PIN, LOW);
 
-    // Log
-    Serial.print("R: "); Serial.print(colorRedFrequency);
-    Serial.print(" G: "); Serial.print(colorGreenFrequency);
-    Serial.print(" B: "); Serial.println(colorBlueFrequency);
-
     // Detect
     if (colorRedFrequency < colorGreenFrequency && colorRedFrequency < colorBlueFrequency)
-        Serial.println("Detected Color: RED");
+        isRed = true;
     else if (colorGreenFrequency < colorRedFrequency && colorGreenFrequency < colorBlueFrequency)
-        Serial.println("Detected Color: GREEN");
+        isRed = false;
     else if (colorBlueFrequency < colorRedFrequency && colorBlueFrequency < colorGreenFrequency)
-        Serial.println("Detected Color: BLUE");
+        isRed = false;
     else
-        Serial.println("Detected Color: UNKNOWN");
+        isRed = false;
+    return isRed;
 }

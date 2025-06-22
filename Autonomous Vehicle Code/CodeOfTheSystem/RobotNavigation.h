@@ -40,16 +40,17 @@ class RobotNavigation {
     UltrasonicSensor* rightSensor;
     UltrasonicSensor* leftSensor;
     MotorControl* motor;
+    ColorSensor* red;
 
   public:
     // Constructor to initialize with motor and sensor objects
-    RobotNavigation(UltrasonicSensor* right, UltrasonicSensor* left, MotorControl* motorControl);
+    RobotNavigation(UltrasonicSensor* right, UltrasonicSensor* left, MotorControl* motorControl, ColorSensor* red);
 
     void begin();                        // Initialize robot and LCD
-    void updateNavigation(unsigned long currentTime); // Run navigation loop
+    void updateNavigation(); // Run navigation loop
     void setRobotState(int state);       // Set a new robot state
-    void handleObstacleAvoidance(unsigned long currentTime); // Obstacle avoidance handler
-    void handleLineSearch(unsigned long currentTime);
+    void handleObstacleAvoidance(); // Obstacle avoidance handler
+    void handleLineSearch();
 };
 
 #endif
