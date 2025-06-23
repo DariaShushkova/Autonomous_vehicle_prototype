@@ -43,9 +43,8 @@ Autonomous Driving System (**ADS**) is a **Line Following and Obstacle Avoiding 
     - Contents: Unit_Tests/, all program files, Voltage Measurement Protocol.pdf
     - [Documentation](https://github.com/DariaShushkova/Autonomous_vehicle_prototype/tree/main/Software%20Testing)
 
-### Demo
-
-**TBA**
+### Competiton Recording
+[Youtube](https://youtu.be/u-iqNwPsLXI)
 
 ### Components
 
