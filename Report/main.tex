@@ -10,6 +10,8 @@
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{float}
+\usepackage{graphicx}
+\usepackage{adjustbox}
 \lstset{
   language=C++,
   basicstyle=\ttfamily\footnotesize,
@@ -77,30 +79,20 @@ The vision of a system started with creating SysML diagrams to preserve and stru
   \item Structural modeling (e.g., Block Definition diagrams (BDD), Internal Block diagrams (IBD))
   \item Behavioral modeling (e.g., Use Case diagrams, Activity Diagrams, Sequence Diagrams, State Machine Diagrams)
 \end{itemize}
-\vspace{2em}
+\vspace{1em}
 \begin{enumerate}
+
 \item \textbf{Requirement Diagram}
 
  \hspace*{1em}It contains both \textbf{functional} and \textbf{nonfunctional} requirements of the autonomous vehicle system. These include navigation, obstacle handling, speed optimization, and route management,  with their derived requirements and hardware components.
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.5\textwidth]{Requirment_Diagram.png}
-    \caption{Requirement diagram of the autonomous vehicle system}
-    \label{fig:req-diagram}
-\end{figure}
-\clearpage
+ 
+ \hspace*{1em}See Fig~\ref{fig:req} the Requirement diagram.
+ \vspace{1em}
 \item \textbf{Parametric Diagram}
 
- \hspace*{1em}The \textbf{ Parametric Diagram} define parametric relationships between properties of blocks. This section uses parametric diagrams to represent mathematical and physical constraints of system behavior.
- \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{Parametric_Diagram.png}
-    \caption{Parametric diagram}
-    \label{fig:param-diagram}
-\end{figure}
+ \hspace*{1em}The \textbf{ Parametric Diagram} define parametric relationships between properties of blocks. This section uses parametric diagrams to represent mathematical and physical constraints of system behavior. See  Fig~\ref{fig:par} the Parametric diagram.
 \vspace{1em}
-\item \textbf{Block Definition Diagrams}
+\item \textbf{Block Definition Diagram}
 
 \hspace*{1em}The \textbf{Block Definition Diagram (BDD)} provides a  structural decomposition of the \textit{Autonomous Vehicle System}. It represents the main logical blocks and how they are hierarchically related through composition relationships.
 
@@ -112,64 +104,43 @@ The vision of a system started with creating SysML diagrams to preserve and stru
     
     \item \textbf{Components:} Wheels and motors, which are part of the physical actuation system.
 \end{itemize}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{Block_Definition_Diagram.jpg}
-    \caption{Block Definition diagram}
-    \label{fig:block_def-diagram}
-\vspace{6em}
-\end{figure}
+\hspace*{1em}See  Fig~\ref{fig:blockDef} the Block Definition diagram .
 
 \item \textbf{Use Case Diagram}
 
-\hspace*{1em}The \textbf{Use Case Diagram} models the interactions between \textbf{User}-the operator and the functionalities.
+Use case diagram models the interactions between \textbf{User} (the operator) and system functionalities. 
+The diagram focuses on a \textit{"happy path"} — \textbf{Drive Autonomously}, which includes supporting behaviors like:
 
-The diagram is focused on a "happy path" \textbf{Drive Autonomously}, which includes other supporting behaviors such as:
-\begin{itemize}
-    \item \textbf{Adjust Speed}
-    \item \textbf{Avoid Obstacle}
-    \item \textbf{Follow Path}
+\begin{itemize}[nosep, left=0pt]
+    \item Adjust Speed
+    \item Avoid Obstacle
+    \item Follow Path
 \end{itemize}
+\vspace{-0.8em}
 Extra behaviors such as \textbf{Drive in Oval} and \textbf{Drive in Figure Eight} are modeled as extensions of the routing logic.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]
-    {UseCaseDiagram.png}
-    \caption{Use Case diagram}
-    \label{fig:param-diagram}
-\end{figure}
+
+\hspace*{1em}See  Fig~\ref{fig:use} the Use Case diagram.
 \vspace{1em}
-\clearpage
 \item \textbf{State Machine Diagram}
 
-\hspace*{1em}The system begins in the "\textbf{stopped}" state. Upon initialization,it switches to the "\textbf{perform autonomous navigation}" state, where it drives left or right based on the input of the line-following sensor. If obstacle has been detected, system transitions to the "\textbf{obstacle\_avoid}" state. 
+The system begins in the "\textbf{stopped}" state. Upon initialization,it switches to the "\textbf{perform autonomous navigation}" state, where it drives left or right based on the input of the line-following sensor. If obstacle has been detected, system transitions to the "\textbf{obstacle\_avoid}" state. 
 \hspace*{1em}In "\textbf{obstacle\_avoid}", the vehicle maneuvers around the obstacle:
 \begin{itemize}
     \item it goes "\textbf{backward}" until save distance to do a maneuver
     \item chooses path depending if where are walls on the "\textbf{left}" or "\textbf{right}"
     \item  does "\textbf{line search}" to find the path after obstacle avoidance have been completed
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{StateMachineDiagram.png}
-    \caption{State Machine diagram}
-    \label{fig:state machine-diagram}
-\end{figure}
 \end{itemize}
-
+\hspace*{1em}See  Fig~\ref{fig:state machine-diagram} the State Machine diagram.
+\vspace{1em}
 \item \textbf{Sequence Diagram}
 
 \hspace*{1em}The \textbf{Sequence Diagram} shows the interaction between the Operator, AVS Controller, sensors, and motor control during autonomous navigation. The controller continuously uses path and obstacle data to send commands to motors: \texttt{setForward()}, \texttt{setLeft()}, or \texttt{setRight()}.
 
 \hspace*{1em}If an obstacle is detected, the system enters \textbf{Obstacle Avoid Mode}, executing timed motor actions. An \texttt{alt} block handles conditional stopping or recovery based on search timeout and sensor feedback.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{SequenceDiagram.png}
-    \caption{Sequence diagram}
-    \label{fig:sequence_def-diagram}
-\vspace{6em}
-\end{figure}
 
+\hspace*{1em}See  Fig~\ref{fig:seq} the Sequence diagram.
 \end{enumerate}
+\vspace{1em}
 \section{Prototyping and Design}
 
 \subsection{Electronic Components}
@@ -395,6 +366,7 @@ Student 4     & 3  \\
 \section{Key Achievements}
 
 
+
 \section*{Acknowledgment}
 
 \begin{thebibliography}{00}
@@ -406,4 +378,61 @@ Student 4     & 3  \\
 \section*{Declaration of Originality}
 We hereby declare that this report is our own work and that we have acknowledged all sources used.
 
+
+
+
+
+
+
+\clearpage
+\begin{center}
+\appendix
+\section*{SysML Diagrams}
+\end{center}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{Requirment_Diagram.png}
+    \caption{Parametric diagram of the autonomous vehicle system}
+    \label{fig:req}
+\end{figure}
+
+ \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Parametric_Diagram.png}
+    \caption{Parametric diagram}
+    \label{fig:par}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{Block_Definition_Diagram.jpg}
+    \caption{Block Definition diagram}
+    \label{fig:blockDef}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]
+    {UseCaseDiagram.png}
+    \caption{Use Case diagram}
+    \label{fig:use}
+\end{figure}
+\clearpage
+
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{StateMachineDiagram.png}
+    \caption{State Machine diagram}
+    \label{fig:state machine-diagram}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \begin{adjustbox}{max width=\textwidth, max height=0.9\textheight}
+        \includegraphics{SequenceDiagram.png}
+    \end{adjustbox}
+    \caption{Sequence diagram}
+    \label{fig:seq}
+\end{figure}
 \end{document}
