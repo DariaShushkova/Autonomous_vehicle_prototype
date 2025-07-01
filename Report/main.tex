@@ -9,6 +9,7 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{listings}
+\usepackage{float}
 \lstset{
   language=C++,
   basicstyle=\ttfamily\footnotesize,
@@ -56,18 +57,119 @@ This project focuses on the development of a simple mobile robot that can autono
 
 
 \section{System Design and Engineering}
-The design of the robot was developed based on the tasks and milestones defined at the beginning of the project. These included line following, obstacle detection and avoidance, and integration of all components into a working prototype. It uses two infrared (IR) sensors to detect the black line and an ultrasonic sensor to measure the distance from obstacles. These sensors send signals to an Arduino Uno, that acts as the main controller.
+The robot design was developed based on \textbf{tasks} and \textbf{milestones} defined at the beginning of the project. These included line following, obstacle detection and avoidance, and integration of all components into a working prototype. It uses two infrared (IR) sensors to detect the black line and an ultrasonic sensor to measure the distance from obstacles. These sensors send signals to an Arduino Uno, that acts as the main controller.
 
 The Arduino processes data and decides how the system should respond: either adjusting its path to stay on the line or stopping and maneuvering around an obstacle. Movement is handled by two DC motors controlled through an L298N motor driver.
 
 Power is provided by a 9V battery pack, with regulation to supply the required voltages for the microcontroller and sensors. A simplified block diagram of the system is shown in Fig.~\ref{fig:block}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\linewidth]{block_diagram.jpg}
+    \includegraphics[width=0.7\linewidth]{block_diagram.jpg}
     \caption{Block diagram of the robot system architecture.}
     \label{fig:block}
 \end{figure}
 
+The vision of a system started with creating SysML diagrams to preserve and structure our project. It have the four Pillars of SysML:
+\vspace{1em}
+\begin{itemize}
+  \item Requirements modeling (e.g., requirement diagram)
+  \item Parametric modeling
+  \item Structural modeling (e.g., Block Definition diagrams (BDD), Internal Block diagrams (IBD))
+  \item Behavioral modeling (e.g., Use Case diagrams, Activity Diagrams, Sequence Diagrams, State Machine Diagrams)
+\end{itemize}
+\vspace{2em}
+\begin{enumerate}
+\item \textbf{Requirement Diagram}
+
+ \hspace*{1em}It contains both \textbf{functional} and \textbf{nonfunctional} requirements of the autonomous vehicle system. These include navigation, obstacle handling, speed optimization, and route management,  with their derived requirements and hardware components.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Requirment_Diagram.png}
+    \caption{Requirement diagram of the autonomous vehicle system}
+    \label{fig:req-diagram}
+\end{figure}
+\clearpage
+\item \textbf{Parametric Diagram}
+
+ \hspace*{1em}The \textbf{ Parametric Diagram} define parametric relationships between properties of blocks. This section uses parametric diagrams to represent mathematical and physical constraints of system behavior.
+ \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Parametric_Diagram.png}
+    \caption{Parametric diagram}
+    \label{fig:param-diagram}
+\end{figure}
+\vspace{1em}
+\item \textbf{Block Definition Diagrams}
+
+\hspace*{1em}The \textbf{Block Definition Diagram (BDD)} provides a  structural decomposition of the \textit{Autonomous Vehicle System}. It represents the main logical blocks and how they are hierarchically related through composition relationships.
+
+\vspace{1em}The  system is broken down into three primary subsystems:
+\begin{itemize}
+    \item \textbf{Chassis:} Includes physical mounting blocks such as the battery and breadboard holder, IR sensor holder, motor holder, and ultrasonic sensor holder.
+    
+    \item \textbf{Controllers:} Main controller (\textit{Arduino}) and the motor controller block responsible for driving the actuators.
+    
+    \item \textbf{Components:} Wheels and motors, which are part of the physical actuation system.
+\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Block_Definition_Diagram.jpg}
+    \caption{Block Definition diagram}
+    \label{fig:block_def-diagram}
+\vspace{6em}
+\end{figure}
+
+\item \textbf{Use Case Diagram}
+
+\hspace*{1em}The \textbf{Use Case Diagram} models the interactions between \textbf{User}-the operator and the functionalities.
+
+The diagram is focused on a "happy path" \textbf{Drive Autonomously}, which includes other supporting behaviors such as:
+\begin{itemize}
+    \item \textbf{Adjust Speed}
+    \item \textbf{Avoid Obstacle}
+    \item \textbf{Follow Path}
+\end{itemize}
+Extra behaviors such as \textbf{Drive in Oval} and \textbf{Drive in Figure Eight} are modeled as extensions of the routing logic.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]
+    {UseCaseDiagram.png}
+    \caption{Use Case diagram}
+    \label{fig:param-diagram}
+\end{figure}
+\vspace{1em}
+\clearpage
+\item \textbf{State Machine Diagram}
+
+\hspace*{1em}The system begins in the "\textbf{stopped}" state. Upon initialization,it switches to the "\textbf{perform autonomous navigation}" state, where it drives left or right based on the input of the line-following sensor. If obstacle has been detected, system transitions to the "\textbf{obstacle\_avoid}" state. 
+\hspace*{1em}In "\textbf{obstacle\_avoid}", the vehicle maneuvers around the obstacle:
+\begin{itemize}
+    \item it goes "\textbf{backward}" until save distance to do a maneuver
+    \item chooses path depending if where are walls on the "\textbf{left}" or "\textbf{right}"
+    \item  does "\textbf{line search}" to find the path after obstacle avoidance have been completed
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{StateMachineDiagram.png}
+    \caption{State Machine diagram}
+    \label{fig:state machine-diagram}
+\end{figure}
+\end{itemize}
+
+\item \textbf{Sequence Diagram}
+
+\hspace*{1em}The \textbf{Sequence Diagram} shows the interaction between the Operator, AVS Controller, sensors, and motor control during autonomous navigation. The controller continuously uses path and obstacle data to send commands to motors: \texttt{setForward()}, \texttt{setLeft()}, or \texttt{setRight()}.
+
+\hspace*{1em}If an obstacle is detected, the system enters \textbf{Obstacle Avoid Mode}, executing timed motor actions. An \texttt{alt} block handles conditional stopping or recovery based on search timeout and sensor feedback.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{SequenceDiagram.png}
+    \caption{Sequence diagram}
+    \label{fig:sequence_def-diagram}
+\vspace{6em}
+\end{figure}
+
+\end{enumerate}
 \section{Prototyping and Design}
 
 \subsection{Electronic Components}
