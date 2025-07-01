@@ -1,0 +1,130 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{Design and Implementation of a Line Following and Obstacle Avoidance Robot}
+
+\author{
+\IEEEauthorblockN{Your Name\IEEEauthorrefmark{1}, Student 2\IEEEauthorrefmark{1}, Student 3\IEEEauthorrefmark{1}, Student 4\IEEEauthorrefmark{1}}
+\IEEEauthorblockA{\IEEEauthorrefmark{1}Systems Engineering and Prototyping, BSc Electronic Engineering\\
+Hochschule Hamm-Lippstadt, Lippstadt, Germany\\
+\{your.name, student2, student3, student4\}@stud.hshl.de}
+}
+
+\maketitle
+
+\begin{abstract}
+This paper presents the.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Line follower robot,
+\end{IEEEkeywords}
+
+\section{Introduction}
+This project focuses on the development of a simple mobile robot that can autonomously follow a black line on a white surface and avoid obstacles placed in its path. The robot uses infrared sensors to detect the line and an ultrasonic sensor to detect nearby objects. An Arduino microcontroller is used to process sensor inputs and control motors accordingly.
+
+
+\section{System Design and Engineering}
+The design of the robot was developed based on the tasks and milestones defined at the beginning of the project. These included line following, obstacle detection and avoidance, and integration of all components into a working prototype. It uses two infrared (IR) sensors to detect the black line and an ultrasonic sensor to measure the distance from obstacles. These sensors send signals to an Arduino Uno, that acts as the main controller.
+
+The Arduino processes data and decides how the system should respond: either adjusting its path to stay on the line or stopping and maneuvering around an obstacle. Movement is handled by two DC motors controlled through an L298N motor driver.
+
+Power is provided by a 9V battery pack, with regulation to supply the required voltages for the microcontroller and sensors. A simplified block diagram of the system is shown in Fig.~\ref{fig:block}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Block diagram.png}
+    \caption{Block diagram of the robot system architecture.}
+    \label{fig:block}
+\end{figure}
+
+\section{Prototyping and Design}
+
+\subsection{Electronic Components}
+
+\subsection{Virtual and Physical Prototypes}
+
+
+\subsection{Hardware Assembly}
+All components were mounted on a chassis and connected as per the schematic.
+
+\section{Circuit Design}
+%\begin{itemize}
+ %   \item The schematic includes sensors, motor driver, Arduino, and power source.
+  %  \item Wiring includes proper voltage connections and pin mappings for sensors and motors.
+%\end{itemize}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=0.9\linewidth]{circuit_diagram.jpg}}
+\caption{Complete circuit layout of the robot}
+\label{fig:circuit}
+\end{figure}
+
+\section{Software Implementation}
+\label{soft}
+
+\subsection{Initialization of Sensors and Actuators}
+Pins for sensors were defined and initialized in the `setup()` function. Below is a snippet:
+\begin{lstlisting}[language=C++, caption=Sensor Initialization Code]
+void setup() {
+  pinMode(2, INPUT);  // IR sensor
+  pinMode(9, OUTPUT); // Motor
+  Serial.begin(9600);
+}
+\end{lstlisting}
+
+\subsection{Movement Control Algorithms}
+
+
+\subsection{Behavioral Decision Logic}
+
+
+\section{Git Usage and Collaboration}
+Project development was tracked using GitHub. Each member's contribution should be explained.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{l|c}
+\hline
+\textbf{Team Member} & \textbf{Number of Commits} \\
+\hline
+Your Name     & 77 \\
+Student 2     & 25 \\
+Student 3     & 9  \\
+Student 4     & 3  \\
+\hline
+\textbf{Total} & \textbf{114} \\
+\hline
+\end{tabular}
+\caption{GitHub Commits by Team Members}
+\label{table:commit}
+\end{table}
+
+\section{Key Achievements}
+
+
+\section*{Acknowledgment}
+
+\begin{thebibliography}{00}
+\bibitem{arduino} Arduino Documentation. \url{https://www.arduino.cc/en/Guide}
+\bibitem{tinkercad} Tinkercad Simulation. \url{https://www.tinkercad.com}
+\bibitem{uppaal} Uppaal Model Checker. \url{http://www.uppaal.org/}
+\end{thebibliography}
+
+\section*{Declaration of Originality}
+We hereby declare that this report is our own work and that we have acknowledged all sources used.
+
+\end{document}
