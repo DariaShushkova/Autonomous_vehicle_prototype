@@ -29,6 +29,6 @@ void setup() {
 
 // Arduino main loop
 void loop() {
-  unsigned long currentTime = millis();     // Get current time
-  robotNav.updateNavigation(currentTime);   // Execute robot logic
+  
+  robotNav.updateNavigation();   // Execute robot logic
 }
