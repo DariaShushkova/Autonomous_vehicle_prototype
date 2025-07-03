@@ -327,7 +327,7 @@ void setup() {
     \end{itemize}
   \item \textbf{Hardware–Software Mapping}
     \begin{itemize}
-      \item See Fig.~1. Block diagram of the robot system architecture.
+      \item On Fig.~\ref{fig:block}, the block diagram shows how each hardware component is mapped to specific software-controlled pins in the Arduino controller.
     \end{itemize}
 \end{enumerate}
 
@@ -336,11 +336,347 @@ This summary ensures the reader understands the overarching design—pin abstrac
 
 \subsection{Movement Control Algorithms}
 
-\subsubsection*{Core Movement Functions}
-We implement four basic motion primitives in 'MotorControl.cpp'.
+\subsubsection*{1. Core Movement Methods}
+
+\paragraph{Forward and Backward Motion}
+
+The robot’s linear motion is achieved through symmetric control of both motors using Pulse Width Modulation (PWM) for speed regulation. The direction of rotation is set by toggling the appropriate H-bridge control pins. The methods of the \texttt{MotorControl class} in 'MotorControl.cpp' show the implementation of forward and reverse movement:
+
+\begin{lstlisting}[language=C++, caption=Forward and backward movement functions]
+// Move robot straight forward at given speed
+void MotorControl::moveForward(int speed) {
+  analogWrite(LEFT_MOTOR_SPEED_PIN, speed);
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, speed);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
+}
+
+// Move robot straight backward at given speed
+void MotorControl::moveBackward(int speed) {
+  analogWrite(LEFT_MOTOR_SPEED_PIN, speed);
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, speed);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, HIGH);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, LOW);
+}
+\end{lstlisting}
+
+\textbf{Key Algorithm:}
+\begin{itemize}
+  \item PWM signals regulate motor speed via \verb|analogWrite()|.
+  \item H-bridge circuits manage direction through digital pins.
+  \item Equal PWM ensures coordinated, straight-line movement.
+\end{itemize}
+
+\paragraph{Pivotal Turning}
+
+For medium-radius turns, one motor is activated while the other is disabled, allowing the robot to pivot around the unpowered wheel. The \verb|turnLeft()| and \verb|turnRight()| methods implement this by powering one motor while setting both control pins for the other motor to \verb|LOW|, causing it to freewheel or coast. This creates a smoother turn compared to a point rotation.
+
+\begin{lstlisting}[language=C++, caption=Single-wheel pivot turn functions]
+// Turn robot to the left
+void MotorControl::turnLeft(int speed) {
+  analogWrite(LEFT_MOTOR_SPEED_PIN, speed);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, LOW);
+}
+
+// Turn robot to the right
+void MotorControl::turnRight(int speed) {
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, speed);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
+}
+
+\end{lstlisting}
+
+\textbf{Key Algorithm:}
+\begin{itemize}
+    \item Only one motor is actively powered for the turn.
+    \item The other motor is disabled and its wheel is allowed to coast, serving as the pivot point.
+    \item The turning radius is determined by the robot's geometry and the speed of the powered wheel.
+\end{itemize}
+
+\paragraph{In-Place Rotation}
+
+In-place rotation is accomplished by driving both motors in opposite directions at equal speed. This results in a zero turning radius, allowing the robot to pivot around its center. The technique is useful in constrained environments or for rapid heading adjustments.
+
+\begin{lstlisting}[language=C++, caption=Counter-rotational in-place turning]
+// Rotate robot to the right
+void MotorControl::rotateRight(int speed) {
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, speed);
+  analogWrite(LEFT_MOTOR_SPEED_PIN, speed);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, HIGH);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
+}
+
+// Rotate robot to the left
+void MotorControl::rotateLeft(int speed) {
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, speed);
+  analogWrite(LEFT_MOTOR_SPEED_PIN, speed);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, LOW);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, LOW);
+}
+
+\end{lstlisting}
+
+\textbf{Key Algorithm:}
+\begin{itemize}
+  \item Opposite motor directions produce a central rotation.
+  \item Equal PWM ensures balanced torque and pivoting.
+  \item Enables highly responsive directional changes.
+\end{itemize}
+
+\paragraph{Stopping Mechanism}
+
+To halt motion, both motors are actively short-braked by setting both control lines to \verb|HIGH|. Simultaneously, PWM is set to its maximum to ensure full coil engagement. This braking approach ensures faster and more stable stops compared to passive coasting.
+
+\begin{lstlisting}[language=C++, caption=Active braking mechanism]
+// Stop robot
+void MotorControl::stopMotors() {
+  analogWrite(LEFT_MOTOR_SPEED_PIN, 255);
+  analogWrite(RIGHT_MOTOR_SPEED_PIN, 255);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, HIGH);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
+}
+\end{lstlisting}
+
+\textbf{Key Algorithm:}
+\begin{itemize}
+  \item Short-circuit braking is applied to both motors.
+  \item Ensures rapid deceleration and positional stability.
+  \item Full PWM maximizes current for immediate response.
+\end{itemize}
+
+\subsubsection*{2. Parameterization and Tuning}
+
+To balance power consumption, control responsiveness, and maneuverability, a set of predefined constants are used for speed tuning. These constants are defined in the header file \texttt{RobotNavigation.h} and used throughout the motion control routines.
+
+\begin{lstlisting}[language=C++, caption=Speed tuning parameters]
+// Speed configurations
+#define DefaultTurnSpeed 140
+#define DefaultRotateSpeed 120
+#define DefaultForwardSpeed 120
+#define DefaultBackwardSpeed 80
+\end{lstlisting}
+
+\textbf{Tuning Principles:}
+\begin{itemize}
+    \item \textbf{High Turn Speed:} The turning speed (140) is set higher than the forward speed to ensure rapid and responsive correction when the robot deviates from the line.
+    \item \textbf{Controlled Rotation and Forward Motion:} Forward and rotation speeds (120) are balanced to provide stable movement during standard navigation and obstacle avoidance maneuvers.
+    \item \textbf{Reduced Reverse Speed:} Reverse motion uses a lower PWM value (80) for increased precision and safety, particularly when backing away from an obstacle.
+    \item \textbf{PWM Range:} All values are calibrated within the 0--255 PWM range to prevent motor saturation while providing adequate torque.
+\end{itemize}
+
+\subsubsection*{3. Real-World Execution Flow}
+
+The robot's low-level movement primitives are integrated with sensor feedback to execute complex, high-level behaviors. The obstacle avoidance routine is a key example, combining multiple motion types in a timed and sensor-driven sequence.
+
+\begin{lstlisting}[language=C++, caption=Excerpt from the Obstacle Avoidance Sequence]
+// Behavior for obstacle avoidance sequence
+void RobotNavigation::handleObstacleAvoidance() {
+  switch (obstacleStep) {
+    // Move backward to clear way for maneuver
+    case 0:
+      motor->stopMotors();
+      delay(100);
+      motor->moveBackward(DefaultBackwardSpeed);
+      delay(200);
+      obstacleStep++;
+      break;
+    // Rotate left before bypass
+    case 1:
+      motor->rotateLeft(80);
+      delay(600);
+      motor->stopMotors();
+      delay(1000);
+      obstacleStep++;
+      break;
+  }
+  
+  // Check obstacle on the left side
+  float rightDistance = rightSensor->getDistance();
+  float leftDistance = leftSensor->getDistance();
+
+  // Scenario 1: Obstacle detected
+  if ((rightDistance < 100 && rightDistance > 3) ||
+      (leftDistance < 100 && leftDistance > 3)) {
+      
+    /* Rotate right to recover straight position.
+    The while loop allows to find line back by
+    rotating right until line is detected again */
+    
+    motor->rotateRight(68);
+    while (true) {
+      bool leftLine = digitalRead(LINE_SENSOR_LEFT);
+      bool rightLine = digitalRead(LINE_SENSOR_RIGHT);
+      if (rightLine == HIGH) {
+        motor->stopMotors();
+        delay(500);
+        break;
+      }
+    }
+    
+    /* Once recovered the straight position,
+    rotate right to bypass from the right side
+    which is clear from obstacles */
+    
+    motor->rotateRight(75);
+    delay(500);
+    
+    /* Bypass the obstacle by executing a pre-tuned
+    multi-step maneuver, developed through testing
+    with the specific hardware and environment
+    conditions */
+
+  // Scenario 2: Obstacle is not detected
+  } else {
+  
+    // Rotate slightly right
+    motor->rotateRight(75);
+    delay(350);
+    
+    /* Execute bypass with pre-tuned multi-step
+    maneuver, developed through testing */
+  }
+  
+  /* In the end of bypass, switch to
+  LINE_SEARCH to reacquire the path */
+  currentState = LINE_SEARCH;
+  setRobotState(LINE_SEARCH);
+}
+\end{lstlisting}
+
+This procedure shows how low-level primitives (\texttt{moveBackward}, \texttt{rotateLeft}, etc.) are composed into a stateful, adaptive sequence. By layering control logic over robust actuator routines, the system achieves both predictability and adaptability in dynamic environments.
 
 \subsection{Behavioral Decision Logic}
 
+The robot's autonomy is governed by a state machine architecture implemented in the \texttt{RobotNavigation class}. This design ensures that the robot transitions between well-defined behaviors based on sensor inputs. The logic is visualized in the state machine diagram in Fig~\ref{fig:state machine-diagram} and implemented in the methods below.
+
+\subsubsection*{1. State Machine Architecture}
+
+The core of the decision-making process locates in the \texttt{updateNavigation()} method in 'RobotNavigation.cpp', which runs continuously. It reads all relevant sensors and uses a prioritized decision tree to select the robot's next state.
+
+\paragraph{Core States} The primary operational states are defined as macros in 'RobotNavigation.h'.
+\begin{lstlisting}[language=C++, caption=State Definitions in RobotNavigation.h]
+// Robot states
+#define OBSTACLE_AVOID 0
+#define LEFT 1
+#define RIGHT 2
+#define LINE_SEARCH 3
+\end{lstlisting}
+
+\paragraph{State Transition Logic} The state transition logic is based on a priority-based sequence implemented in the \texttt{updateNavigation()} method, where the obstacle avoidance is the highest priority.
+
+\begin{lstlisting}[language=C++, caption=Decision Logic in RobotNavigation.cpp]
+void RobotNavigation::updateNavigation() {
+  // Read line and obstacle sensors
+  int leftLine = digitalRead(LINE_SENSOR_LEFT);
+  int rightLine = digitalRead(LINE_SENSOR_RIGHT);
+  float rightDistance = rightSensor->getDistance();
+  float leftDistance = leftSensor->getDistance();
+
+  // Decision Tree
+  // Priority 1: Obstacle detection
+  if (((rightDistance < maxDistance &&
+        rightDistance > minDistance) ||
+      (leftDistance < maxDistance &&
+       leftDistance > minDistance)) &&
+      !red->ColorSensorObserve()) {
+    motor->stopMotors();
+    delay(300);
+    setRobotState(OBSTACLE_AVOID);
+  }
+  
+  // Priority 2: Line following
+  
+  // Right sensor lost the line
+  if (leftLine == HIGH && rightLine == LOW) {
+    motor->stopMotors();
+    setRobotState(LEFT);  // Turn left
+    
+  // Left sensor lost the line
+  } else if (leftLine == LOW && rightLine == HIGH) {
+    motor->stopMotors();
+    setRobotState(RIGHT);  // Turn right
+    
+  // Both sensors lost the line
+  } else if (leftLine == LOW && rightLine == LOW) {
+    // Invert last correction
+    if (currentState == LEFT) {
+      motor->stopMotors();
+      setRobotState(RIGHT);
+    } else if (currentState == RIGHT) {
+      motor->stopMotors();
+      setRobotState(LEFT);
+    }
+  }
+}
+\end{lstlisting}
+An important feature of the decision logic is the integration of the color sensor. The robot will only enter the \texttt{OBSTACLE\_AVOID} state if the detected object is not red, allowing it to treat red objects as non-impediments.
+
+\subsubsection*{2. State-Specific Behaviors}
+
+Once a state is set via \texttt{setRobotState()}, a specific handler function is executed.
+
+\paragraph{OBSTACLE\_AVOID State} This is a multi-step routine managed by the \texttt{obstacleStep} variable. It does not execute in a single function call but progresses through a sequence.
+\begin{itemize}
+    \item \textbf{Step 0 \& 1:} The robot first moves backward to create space, then rotates to face a new heading.
+    \item \textbf{Conditional Bypass:} After the initial turn, the robot re-evaluates the obstacle. If it is still detected within a 100cm range, a longer, more complex bypass maneuver is executed. Otherwise, a shorter maneuver is performed to return to the path.
+    \item \textbf{Exit Condition:} Upon completing the bypass maneuver, the robot transitions to the \texttt{LINE\_SEARCH} state to reacquire the line.
+\end{itemize}
+
+\paragraph{LEFT and RIGHT States} These states handle minor course corrections. The robot executes a pivot turn until the opposite sensor rediscovers the line, ensuring it straightens out.
+\begin{lstlisting}[language=C++, caption=Line Correction Logic]
+case LEFT:
+  /* Turn left until the right IR sensor
+  detects the line */
+  
+  while (digitalRead(LINE_SENSOR_RIGHT) == LOW)
+      motor->turnLeft(DefaultTurnSpeed);
+  motor->stopMotors();
+  break;
+  
+case RIGHT: // The RIGHT case is symmetric
+...
+
+\end{lstlisting}
+
+\paragraph{LINE\_SEARCH State} This state is triggered when obstacle avoidance is performed. The logic of this state is implemented in the \texttt{handleLineSearch()} method in 'RobotNavigation.cpp'. The method executes a zig-zag pattern, first turning left and then right in small increments, until one of the sensors finds the line.
+\begin{itemize}
+    \item \textbf{Timeout Failsafe:} This search is constrained by a \texttt{searchTimeout} of 100,000 ms. If the line is not found within this period, the routine terminates, which corresponds to the transition to the final \texttt{STOPPED} state in the state diagram.
+    \item \textbf{Re-alignment:} Once the line is detected, a final adjustment is made to center the robot before resuming forward motion.
+\end{itemize}
+
+\subsubsection*{3. Behavioral Characteristics Summary}
+
+The following table summarizes the primary state transitions. The "Default" behavior of moving forward is the implicit action when no other trigger condition is met.
+
+\texttt{}\texttt{\texttt{\begin{table}[H]
+\centering
+\caption{Robot State Behavior Summary}
+\label{tab:behavior}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{State} & \textbf{Trigger Condition} & \textbf{Primary Action} & \textbf{Exit Condition} \\ \hline
+\texttt{LEFT} & Left sensor on line & turnLeft() & Right sensor on line \\ \hline
+\texttt{RIGHT} & Right sensor on line & turnRight() & Left sensor on line \\ \hline
+\texttt{OBSTACLE\_AVOID} & \begin{tabular}[c]{@{}l@{}}Object in 3-20cm\\ and not red\end{tabular} & \begin{tabular}[c]{@{}l@{}}Multi-step\\ bypass sequence\end{tabular} & Maneuver completion \\ \hline
+\texttt{LINE\_SEARCH} & Both sensors off line & \begin{tabular}[c]{@{}l@{}}Scan left and right\\ for the line\end{tabular} & \begin{tabular}[c]{@{}l@{}}Line reacquired or\\ timeout expires\end{tabular} \\ \hline
+\end{tabular}
+\end{table}}}
 
 \section{Git Usage and Collaboration}
 Project development was tracked using GitHub. Each member's contribution should be explained.
