@@ -27,13 +27,13 @@ void RobotNavigation::setRobotState(int state) {
 
     case LEFT:
       while (digitalRead(LINE_SENSOR_RIGHT) == LOW)
-          motor->turnLeft(DefaultTurnSpeed); // Turn left until the right IR won't lose the line
+          motor->turnLeft(DefaultTurnSpeed); //Turn left until the right IR sensor detects the line
       motor->stopMotors();
       break;
 
     case RIGHT:
       while (digitalRead(LINE_SENSOR_LEFT) == LOW)
-          motor->turnRight(DefaultTurnSpeed); // Turn right until the left IR won't lose the line
+          motor->turnRight(DefaultTurnSpeed); // Turn right until the left IR sensor detects the line
       motor->stopMotors();
       break;
 
@@ -64,10 +64,10 @@ void RobotNavigation::updateNavigation() {
   }
   if (leftLine == HIGH && rightLine == LOW) {
     motor->stopMotors();
-    setRobotState(LEFT);  // Left line lost: turn left
+    setRobotState(LEFT);  // Right sensor losts the line
   } else if (leftLine == LOW && rightLine == HIGH) {
     motor->stopMotors();
-    setRobotState(RIGHT);  // Right line lost: turn right
+    setRobotState(RIGHT);  // Left sensor losts the line
   } else if (leftLine == LOW && rightLine == LOW) {
     if (currentState == LEFT) {
       motor->stopMotors();

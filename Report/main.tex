@@ -12,6 +12,7 @@
 \usepackage{float}
 \usepackage{graphicx}
 \usepackage{adjustbox}
+\usepackage{enumitem}
 \lstset{
   language=C++,
   basicstyle=\ttfamily\footnotesize,
@@ -28,6 +29,7 @@
   captionpos=b,
   tabsize=2
 }
+
 
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
@@ -163,15 +165,16 @@ All components were mounted on a chassis and connected as per the schematic.
 \label{fig:circuit}
 \end{figure}
 
+
 \section{Software Implementation}
 \label{soft}
 
 \subsection{Initialization of Sensors and Actuators}
-\subsubsection*{1. Sensors Initialization}
+\subsubsection*{\textbf{1. Sensors Initialization}}
 
-\paragraph{Ultrasonic Sensors (Left/Right)}
-Pins for the ultrasonic sensors are defined in the file 'UltrasonicSensor.h'. They are set up and initialized in the 'UltrasonicSensor.cpp' and 'main.cpp' files. Relevant snippets are shown below:
+\begin{enumerate}[label=\alph*)]
 
+\item \textbf{Ultrasonic Sensors (Left/Right)} — Pins for the ultrasonic sensors are defined in the file 'UltrasonicSensor.h'. They are set up and initialized in the 'UltrasonicSensor.cpp' and 'main.cpp' files. Relevant snippets are shown below:
 
 \begin{lstlisting}[language=C++, caption=Pin definitions in UltrasonicSensor.h]
 // Ultrasonic sensor pin definitions
@@ -212,9 +215,7 @@ void setup() {
 }
 \end{lstlisting}
 
-\paragraph{IR Sensors (Left/Right)}
-
-Pins for the IR sensors are defined in 'RobotNavigation.h' and initialized in 'RobotNavigation.cpp' and in 'main.cpp'. Relevant snippets are shown below:
+\item \textbf{IR Sensors (Left/Right)} — Pins for the IR sensors are defined in 'RobotNavigation.h' and initialized in 'RobotNavigation.cpp' and in 'main.cpp'. Relevant snippets are shown below:
 
 \begin{lstlisting}[language=C++, caption=IR sensor pin definitions in RobotNavigation.h]
 // Line sensor digital pins
@@ -237,9 +238,7 @@ void setup() {
 }
 \end{lstlisting}
 
-\paragraph{Color Sensor}
-
-Pins for the color sensor are defined in 'ColorSensor.h' and initialized in 'ColorSensor.cpp'. Relevant snippets are shown below:
+\item \textbf{Color Sensor} — Pins for the color sensor are defined in 'ColorSensor.h' and initialized in 'ColorSensor.cpp'. Relevant snippets are shown below:
 
 \begin{lstlisting}[language=C++, caption=Color sensor pin definitions in ColorSensor.h]
 // Pin definitions
@@ -276,8 +275,10 @@ void ColorSensor::ColorSensorInit() {
       LOW); // Frequency scaling = 20%
 }
 \end{lstlisting}
+\end{enumerate}
 
-\subsubsection*{2. Actuators (Motors) Initialization}
+
+\subsubsection*{\textbf{2. Actuators (Motors) Initialization}}
 Motor Control Pins are defined in the file 'MotorControl.h'. Their setup and initialization are made in the 'main.cpp' file. Relevant snippets are shown below:
 
 \begin{lstlisting}[language=C++, caption=Pin definitions in MotorControl.h]
@@ -293,7 +294,7 @@ Motor Control Pins are defined in the file 'MotorControl.h'. Their setup and ini
 \begin{lstlisting}[language=C++, caption=Pins initialization in main.cpp]
 // Create hardware instances
 MotorControl motor;
-..
+...
 
 RobotNavigation robotNav(
   &rightUltrasonic,
@@ -336,11 +337,11 @@ This summary ensures the reader understands the overarching design—pin abstrac
 
 \subsection{Movement Control Algorithms}
 
-\subsubsection*{1. Core Movement Methods}
+\subsubsection*{\textbf{1. Core Movement Methods}}
 
-\paragraph{Forward and Backward Motion}
+\begin{enumerate}[label=\alph*)]
 
-The robot’s linear motion is achieved through symmetric control of both motors using Pulse Width Modulation (PWM) for speed regulation. The direction of rotation is set by toggling the appropriate H-bridge control pins. The methods of the \texttt{MotorControl class} in 'MotorControl.cpp' show the implementation of forward and reverse movement:
+\item \textbf{Forward and Backward Motion} - The robot’s linear motion is achieved through symmetric control of both motors using Pulse Width Modulation (PWM) for speed regulation. The direction of rotation is set by toggling the appropriate H-bridge control pins. The methods of the \texttt{MotorControl class} in 'MotorControl.cpp' show the implementation of forward and reverse movement:
 
 \begin{lstlisting}[language=C++, caption=Forward and backward movement functions]
 // Move robot straight forward at given speed
@@ -371,9 +372,7 @@ void MotorControl::moveBackward(int speed) {
   \item Equal PWM ensures coordinated, straight-line movement.
 \end{itemize}
 
-\paragraph{Pivotal Turning}
-
-For medium-radius turns, one motor is activated while the other is disabled, allowing the robot to pivot around the unpowered wheel. The \verb|turnLeft()| and \verb|turnRight()| methods implement this by powering one motor while setting both control pins for the other motor to \verb|LOW|, causing it to freewheel or coast. This creates a smoother turn compared to a point rotation.
+\item \textbf{Pivotal Turning} - For medium-radius turns, one motor is activated while the other is disabled, allowing the robot to pivot around the unpowered wheel. The \verb|turnLeft()| and \verb|turnRight()| methods implement this by powering one motor while setting both control pins for the other motor to \verb|LOW|, causing it to freewheel or coast. This creates a smoother turn compared to a point rotation.
 
 \begin{lstlisting}[language=C++, caption=Single-wheel pivot turn functions]
 // Turn robot to the left
@@ -403,9 +402,7 @@ void MotorControl::turnRight(int speed) {
     \item The turning radius is determined by the robot's geometry and the speed of the powered wheel.
 \end{itemize}
 
-\paragraph{In-Place Rotation}
-
-In-place rotation is accomplished by driving both motors in opposite directions at equal speed. This results in a zero turning radius, allowing the robot to pivot around its center. The technique is useful in constrained environments or for rapid heading adjustments.
+\item \textbf{In-Place Rotation} - In-place rotation is accomplished by driving both motors in opposite directions at equal speed. This results in a zero turning radius, allowing the robot to pivot around its center. The technique is useful in constrained environments or for rapid heading adjustments.
 
 \begin{lstlisting}[language=C++, caption=Counter-rotational in-place turning]
 // Rotate robot to the right
@@ -437,9 +434,7 @@ void MotorControl::rotateLeft(int speed) {
   \item Enables highly responsive directional changes.
 \end{itemize}
 
-\paragraph{Stopping Mechanism}
-
-To halt motion, both motors are actively short-braked by setting both control lines to \verb|HIGH|. Simultaneously, PWM is set to its maximum to ensure full coil engagement. This braking approach ensures faster and more stable stops compared to passive coasting.
+\item \textbf{Stopping Mechanism} - To halt motion, both motors are actively short-braked by setting both control lines to \verb|HIGH|. Simultaneously, PWM is set to its maximum to ensure full coil engagement. This braking approach ensures faster and more stable stops compared to passive coasting.
 
 \begin{lstlisting}[language=C++, caption=Active braking mechanism]
 // Stop robot
@@ -459,8 +454,9 @@ void MotorControl::stopMotors() {
   \item Ensures rapid deceleration and positional stability.
   \item Full PWM maximizes current for immediate response.
 \end{itemize}
+\end{enumerate}
 
-\subsubsection*{2. Parameterization and Tuning}
+\subsubsection*{\textbf{2. Parameterization and Tuning}}
 
 To balance power consumption, control responsiveness, and maneuverability, a set of predefined constants are used for speed tuning. These constants are defined in the header file \texttt{RobotNavigation.h} and used throughout the motion control routines.
 
@@ -480,7 +476,7 @@ To balance power consumption, control responsiveness, and maneuverability, a set
     \item \textbf{PWM Range:} All values are calibrated within the 0--255 PWM range to prevent motor saturation while providing adequate torque.
 \end{itemize}
 
-\subsubsection*{3. Real-World Execution Flow}
+\subsubsection*{\textbf{3. Real-World Execution Flow}}
 
 The robot's low-level movement primitives are integrated with sensor feedback to execute complex, high-level behaviors. The obstacle avoidance routine is a key example, combining multiple motion types in a timed and sensor-driven sequence.
 
@@ -565,11 +561,13 @@ This procedure shows how low-level primitives (\texttt{moveBackward}, \texttt{ro
 
 The robot's autonomy is governed by a state machine architecture implemented in the \texttt{RobotNavigation class}. This design ensures that the robot transitions between well-defined behaviors based on sensor inputs. The logic is visualized in the state machine diagram in Fig~\ref{fig:state machine-diagram} and implemented in the methods below.
 
-\subsubsection*{1. State Machine Architecture}
+\subsubsection*{\textbf{1. State Machine Architecture}}
 
-The core of the decision-making process locates in the \texttt{updateNavigation()} method in 'RobotNavigation.cpp', which runs continuously. It reads all relevant sensors and uses a prioritized decision tree to select the robot's next state.
+The core of the decision-making process is located in the \texttt{updateNavigation()} method in 'RobotNavigation.cpp', which runs continuously. It performs the reading of all relevant sensors and the usage of a prioritized decision tree to select the robot's next state.
 
-\paragraph{Core States} The primary operational states are defined as macros in 'RobotNavigation.h'.
+\begin{enumerate}[label=\alph*)]
+
+\item \textbf{Core States} - The primary operational states are defined as macros in 'RobotNavigation.h'.
 \begin{lstlisting}[language=C++, caption=State Definitions in RobotNavigation.h]
 // Robot states
 #define OBSTACLE_AVOID 0
@@ -578,7 +576,7 @@ The core of the decision-making process locates in the \texttt{updateNavigation(
 #define LINE_SEARCH 3
 \end{lstlisting}
 
-\paragraph{State Transition Logic} The state transition logic is based on a priority-based sequence implemented in the \texttt{updateNavigation()} method, where the obstacle avoidance is the highest priority.
+\item \textbf{State Transition Logic} - The state transition logic is based on a priority-based sequence implemented in the \texttt{updateNavigation()} method, where the obstacle avoidance is the highest priority.
 
 \begin{lstlisting}[language=C++, caption=Decision Logic in RobotNavigation.cpp]
 void RobotNavigation::updateNavigation() {
@@ -614,7 +612,7 @@ void RobotNavigation::updateNavigation() {
     
   // Both sensors lost the line
   } else if (leftLine == LOW && rightLine == LOW) {
-    // Invert last correction
+    // Invert last state
     if (currentState == LEFT) {
       motor->stopMotors();
       setRobotState(RIGHT);
@@ -625,20 +623,28 @@ void RobotNavigation::updateNavigation() {
   }
 }
 \end{lstlisting}
-An important feature of the decision logic is the integration of the color sensor. The robot will only enter the \texttt{OBSTACLE\_AVOID} state if the detected object is not red, allowing it to treat red objects as non-impediments.
 
-\subsubsection*{2. State-Specific Behaviors}
+An important feature of the decision logic is the integration of the color sensor. The robot should only enter the \texttt{OBSTACLE\_AVOID} state if the detected object is \texttt{NOT RED}, allowing it to push red objects off the line and continue following it.
 
-Once a state is set via \texttt{setRobotState()}, a specific handler function is executed.
+\end{enumerate}
 
-\paragraph{OBSTACLE\_AVOID State} This is a multi-step routine managed by the \texttt{obstacleStep} variable. It does not execute in a single function call but progresses through a sequence.
+\subsubsection*{\textbf{2. State-Specific Behaviors}}
+
+Once a state is set via \texttt{setRobotState()} method, a specific handler function is executed.
+
+\begin{enumerate}[label=\alph*)]
+
+\item \textbf{OBSTACLE\_AVOID State} — This is a multi-step routine managed by the \texttt{obstacleStep} attribute of the \texttt{RobotNavigate} class. It does not execute in a single function call but progresses through a sequence.
+
 \begin{itemize}
     \item \textbf{Step 0 \& 1:} The robot first moves backward to create space, then rotates to face a new heading.
-    \item \textbf{Conditional Bypass:} After the initial turn, the robot re-evaluates the obstacle. If it is still detected within a 100cm range, a longer, more complex bypass maneuver is executed. Otherwise, a shorter maneuver is performed to return to the path.
+    \item \textbf{Conditional Bypass:} After the initial turn, the robot re-checks for another obstacle on the left. If one is detected within a 3-100 cm range, a longer, more complex bypass maneuver is executed: the robot first rotates right to recover its original position using the line sensors, and then rotates right again to initiate a bypass from the opposite side, which is presumed clear. Otherwise, a shorter maneuver is performed to return to the path (see Fig.~\ref{fig:state machine-diagram} and the code snippet in Listing 16)
+
     \item \textbf{Exit Condition:} Upon completing the bypass maneuver, the robot transitions to the \texttt{LINE\_SEARCH} state to reacquire the line.
 \end{itemize}
 
-\paragraph{LEFT and RIGHT States} These states handle minor course corrections. The robot executes a pivot turn until the opposite sensor rediscovers the line, ensuring it straightens out.
+\item \textbf{LEFT and RIGHT States} — These states handle the line-following course. The robot executes a pivot turn until the opposite sensor rediscovers the line, ensuring the robot straightens out. This logic applies a zig-zag pattern, allowing the robot to follow the line even through the sharpest curves.
+
 \begin{lstlisting}[language=C++, caption=Line Correction Logic]
 case LEFT:
   /* Turn left until the right IR sensor
@@ -651,32 +657,55 @@ case LEFT:
   
 case RIGHT: // The RIGHT case is symmetric
 ...
-
 \end{lstlisting}
 
-\paragraph{LINE\_SEARCH State} This state is triggered when obstacle avoidance is performed. The logic of this state is implemented in the \texttt{handleLineSearch()} method in 'RobotNavigation.cpp'. The method executes a zig-zag pattern, first turning left and then right in small increments, until one of the sensors finds the line.
+\item \textbf{LINE\_SEARCH State} — This state is triggered after the robot completes an obstacle avoidance maneuver. The logic of this state is implemented in the \texttt{handleLineSearch()} method in 'RobotNavigation.cpp'. The method executes a zig-zag pattern, first turning left and then right in small increments, until one of the sensors finds the line.
+
 \begin{itemize}
-    \item \textbf{Timeout Failsafe:} This search is constrained by a \texttt{searchTimeout} of 100,000 ms. If the line is not found within this period, the routine terminates, which corresponds to the transition to the final \texttt{STOPPED} state in the state diagram.
+    \item \textbf{Timeout Failsafe:} This search is constrained by a \texttt{searchTimeout} of 100,000 ms. If the line is not found within this period, the routine terminates, which corresponds to the transition to the final \texttt{STOPPED} state in the state diagram (see Fig.~\ref{fig:state machine-diagram}).
     \item \textbf{Re-alignment:} Once the line is detected, a final adjustment is made to center the robot before resuming forward motion.
 \end{itemize}
 
-\subsubsection*{3. Behavioral Characteristics Summary}
+\end{enumerate}
 
-The following table summarizes the primary state transitions. The "Default" behavior of moving forward is the implicit action when no other trigger condition is met.
+\begin{lstlisting}[language=C++, caption=Excerpt from the Line Search Sequence]
+void RobotNavigation::handleLineSearch() {
+  bool foundLine = false;
+  unsigned long startTime = millis();
+  while (millis() - startTime < searchTimeout) {
+    motor->turnLeft(120);
+    delay(110);
+    motor->stopMotors();
+    delay(100);
 
-\texttt{}\texttt{\texttt{\begin{table}[H]
-\centering
-\caption{Robot State Behavior Summary}
-\label{tab:behavior}
-\begin{tabular}{|l|l|l|l|}
-\hline
-\textbf{State} & \textbf{Trigger Condition} & \textbf{Primary Action} & \textbf{Exit Condition} \\ \hline
-\texttt{LEFT} & Left sensor on line & turnLeft() & Right sensor on line \\ \hline
-\texttt{RIGHT} & Right sensor on line & turnRight() & Left sensor on line \\ \hline
-\texttt{OBSTACLE\_AVOID} & \begin{tabular}[c]{@{}l@{}}Object in 3-20cm\\ and not red\end{tabular} & \begin{tabular}[c]{@{}l@{}}Multi-step\\ bypass sequence\end{tabular} & Maneuver completion \\ \hline
-\texttt{LINE\_SEARCH} & Both sensors off line & \begin{tabular}[c]{@{}l@{}}Scan left and right\\ for the line\end{tabular} & \begin{tabular}[c]{@{}l@{}}Line reacquired or\\ timeout expires\end{tabular} \\ \hline
-\end{tabular}
-\end{table}}}
+    bool leftLine = digitalRead(LINE_SENSOR_LEFT);
+    bool rightLine = digitalRead(LINE_SENSOR_RIGHT);
+
+    if (leftLine == HIGH || rightLine == HIGH) {
+        // Realignment sequence
+        if (leftLine == HIGH)
+            while (rightLine == HIGH)
+                motor->turnLeft(DefaultTurnSpeed);
+
+        if (rightLine == HIGH)
+            while (leftLine == HIGH)
+                motor->turnRight(DefaultTurnSpeed);
+
+        break;
+    }
+
+    // Try right turn if line not found and repeat
+    motor->turnRight(DefaultTurnSpeed);
+    delay(100);
+    motor->stopMotors();
+    delay(100);
+    ...
+}
+\end{lstlisting}
+
+\subsubsection*{\textbf{3. Behavioral Characteristics Summary}}
+
+The Table~\ref{tab:behavior} summarizes the primary state transitions. The "Default" behavior of moving forward is the implicit action when no other trigger condition is met.
 
 \section{Git Usage and Collaboration}
 Project development was tracked using GitHub. Each member's contribution should be explained.
@@ -700,7 +729,6 @@ Student 4     & 3  \\
 \end{table}
 
 \section{Key Achievements}
-
 
 
 \section*{Acknowledgment}
@@ -728,7 +756,7 @@ We hereby declare that this report is our own work and that we have acknowledged
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{Requirment_Diagram.png}
-    \caption{Parametric diagram of the autonomous vehicle system}
+    \caption{Requirement diagram}
     \label{fig:req}
 \end{figure}
 
@@ -771,4 +799,20 @@ We hereby declare that this report is our own work and that we have acknowledged
     \caption{Sequence diagram}
     \label{fig:seq}
 \end{figure}
+
+\clearpage
+\begin{table}[H]
+\centering
+\caption{Robot State Behavior Summary}
+\label{tab:behavior}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{State} & \textbf{Trigger Condition} & \textbf{Primary Action} & \textbf{Exit Condition} \\ \hline
+\texttt{LEFT} & Left sensor on line & \texttt{turnLeft()} & Right sensor on line \\ \hline
+\texttt{RIGHT} & Right sensor on line & \texttt{turnRight()} & Left sensor on line \\ \hline
+\texttt{OBSTACLE\_AVOID} & \begin{tabular}[c]{@{}l@{}}Object in 3–20 cm\\ and not red\end{tabular} & \begin{tabular}[c]{@{}l@{}}Multi-step\\ bypass sequence\end{tabular} & Maneuver completion \\ \hline
+\texttt{LINE\_SEARCH} & Both sensors off line & \begin{tabular}[c]{@{}l@{}}Scan left and right\\ for the line\end{tabular} & \begin{tabular}[c]{@{}l@{}}Line reacquired or\\ timeout expires\end{tabular} \\ \hline
+\end{tabular}
+\end{table}
+
 \end{document}
