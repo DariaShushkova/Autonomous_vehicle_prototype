@@ -154,10 +154,62 @@ The system begins in the "\textbf{stopped}" state. Upon initialization,it switch
 All components were mounted on a chassis and connected as per the schematic.
 
 \section{Circuit Design}
-%\begin{itemize}
- %   \item The schematic includes sensors, motor driver, Arduino, and power source.
-  %  \item Wiring includes proper voltage connections and pin mappings for sensors and motors.
-%\end{itemize}
+
+The autonomous vehicle circuit integrates multiple sensor and actuator subsystems using an Arduino Uno as the main controller. The complete circuit layout is shown in Fig.~\ref{fig:circuit}.
+
+The wiring was designed to fulfill three key goals: modularity, robustness, and safe power distribution. Each subsystem was treated as an independent module, allowing for easier debugging and incremental development.
+
+\subsection{Sensor Integration}
+\begin{itemize}
+  \item \textbf{Infrared Line Sensors (2x)} are connected to digital input pins D12 and D13. These sensors detect the black line against the white surface, and their values are read in real-time to determine the robot's lateral alignment.
+  
+  \item \textbf{Ultrasonic Sensors (2x)} are mounted on the front-left and front-right sides. Their trigger and echo pins are connected to D6/D7 (right) and D8/D9 (left). These provide real-time distance feedback to avoid collisions.
+  
+  \item \textbf{Color Sensor (1x)} is connected to analog pins A0 to A4. It adds redundancy to object classification, allowing the robot to treat red-colored obstacles differently (e.g., push or bypass).
+\end{itemize}
+
+\subsection{Actuator Wiring}
+\begin{itemize}
+  \item \textbf{Motor Driver (L298N)} is used to control two DC motors. It is connected to:
+  \begin{itemize}
+    \item PWM pins D10 and D11 for speed control
+    \item Direction control pins D2–D5
+  \end{itemize}
+  The motors are powered directly from the 12V battery pack via the motor driver's onboard regulator.
+\end{itemize}
+
+\subsection{Power Management}
+\begin{itemize}
+  \item A 12V DC battery pack supplies power to both motors and the Arduino.
+  \item A voltage regulator onboard the L298N downscales the 12V to 5V for the Arduino and sensors, avoiding voltage spikes and protecting delicate components.
+  \item Decoupling capacitors are placed across power lines to minimize electrical noise and ensure stable analog sensor readings.
+\end{itemize}
+
+\subsection{Pin Mapping Overview}
+
+\begin{table}[H]
+\centering
+\caption{Key Pin Assignments}
+\label{tab:pinmap}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Component} & \textbf{Pin(s)} \\ \hline
+IR Sensor (Left) & D13 \\ \hline
+IR Sensor (Right) & D12 \\ \hline
+Ultrasonic Sensor (Left) & D8 (Trig), D9 (Echo) \\ \hline
+Ultrasonic Sensor (Right) & D6 (Trig), D7 (Echo) \\ \hline
+Left Motor & D2 (F), D3 (B), D10 (PWM) \\ \hline
+Right Motor & D4 (F), D5 (B), D11 (PWM) \\ \hline
+Color Sensor & A0–A4 \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Schematic Analysis}
+The circuit was simulated and verified using Tinkercad and real-world breadboard prototyping. Care was taken to route ground lines properly, avoid floating inputs, and apply pull-down resistors where needed.
+
+The design emphasizes modularity, with all sensors and motors detachable via male/female header connectors for ease of maintenance and reassembly.
+
+
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[width=0.9\linewidth]{circuit_diagram.jpg}}
