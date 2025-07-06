@@ -2,7 +2,7 @@
 Shown below is the number of commits made per user as exported from git.
     63	Daria Shushkova <dariashushkova@Darias-MacBook-Pro.local>
     58	andrey-sysoev <andrey.sysoev@stud.hshl.de>
-    28	Amer195 <163016879+Amer195@users.noreply.github.com>
+    30	Amer195 <163016879+Amer195@users.noreply.github.com>
     27	SamRB-dev <sadimrahmanbadhon@gmail.com>
      9	DariaShushkova <daria.shushkova@stud.hshl.de>
      7	Sadim Rahman Badhan <70096616+SamRB-dev@users.noreply.github.com>
@@ -10,7 +10,7 @@ Shown below is the number of commits made per user as exported from git.
 After merging the duplicate accounts
     72	Daria Shushkova <dariashushkova@Darias-MacBook-Pro.local>
     58	andrey-sysoev <andrey.sysoev@stud.hshl.de>
-    28	Amer195 <163016879+Amer195@users.noreply.github.com>
+    30	Amer195 <163016879+Amer195@users.noreply.github.com>
     34	SamRB-dev <sadimrahmanbadhon@gmail.com>
     
      
