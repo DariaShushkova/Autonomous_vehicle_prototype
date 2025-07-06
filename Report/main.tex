@@ -1,6 +1,6 @@
 \documentclass[conference]{IEEEtran}
 \IEEEoverridecommandlockouts
-
+\usepackage{comment}
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
@@ -31,7 +31,6 @@
 }
 
 
-
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
@@ -40,21 +39,21 @@
 \title{Design and Implementation of a Line Following and Obstacle Avoidance Robot}
 
 \author{
-\IEEEauthorblockN{Your Name\IEEEauthorrefmark{1}, Student 2\IEEEauthorrefmark{1}, Student 3\IEEEauthorrefmark{1}, Student 4\IEEEauthorrefmark{1}}
+\IEEEauthorblockN{Mohamed Amer\IEEEauthorrefmark{1}, Daria Shushkova\IEEEauthorrefmark{1},Andrey Sysoev\IEEEauthorrefmark{1}, Sadim Rahman\IEEEauthorrefmark{1}}
 \IEEEauthorblockA{\IEEEauthorrefmark{1}Systems Engineering and Prototyping, BSc Electronic Engineering\\
 Hochschule Hamm-Lippstadt, Lippstadt, Germany\\
-\{your.name, student2, student3, student4\}@stud.hshl.de}
+\{mohamed-ahmed-mohamed-ali.amer, daria.shushkova, andrey.sysoev, sadim-rahman.badhan\}@stud.hshl.de}
 }
 
 \maketitle
 
-\begin{abstract}
-This paper presents the.
-\end{abstract}
+%\begin{abstract}
+%This paper presents the.
+%\end{abstract}
 
-\begin{IEEEkeywords}
-Line follower robot,
-\end{IEEEkeywords}
+%\begin{IEEEkeywords}
+%Line follower robot,
+%\end{IEEEkeywords}
 
 \section{Introduction}
 This project focuses on the development of a simple mobile robot that can autonomously follow a black line on a white surface and avoid obstacles placed in its path. The robot uses infrared sensors to detect the line and an ultrasonic sensor to detect nearby objects. An Arduino microcontroller is used to process sensor inputs and control motors accordingly.
@@ -108,7 +107,7 @@ The vision of a system started with creating SysML diagrams to preserve and stru
 \end{itemize}
 \hspace*{1em}See  Fig~\ref{fig:blockDef} the Block Definition diagram .
 
-\item \textbf{Use Case Diagram}
+\item\textbf{Use Case Diagram}
 
 Use case diagram models the interactions between \textbf{User} (the operator) and system functionalities. 
 The diagram focuses on a \textit{"happy path"} — \textbf{Drive Autonomously}, which includes supporting behaviors like:
@@ -118,7 +117,7 @@ The diagram focuses on a \textit{"happy path"} — \textbf{Drive Autonomously}, 
     \item Avoid Obstacle
     \item Follow Path
 \end{itemize}
-\vspace{-0.8em}
+\vspace{0.8em}
 Extra behaviors such as \textbf{Drive in Oval} and \textbf{Drive in Figure Eight} are modeled as extensions of the routing logic.
 
 \hspace*{1em}See  Fig~\ref{fig:use} the Use Case diagram.
@@ -144,14 +143,27 @@ The system begins in the "\textbf{stopped}" state. Upon initialization,it switch
 \end{enumerate}
 \vspace{1em}
 \section{Prototyping and Design}
-
+Our team was supplied with several Electronic components and a pre-designed chassis for development of the line follower vehicle. Our team was tasked to design a suitable mechanical design that would perform well in practice while utilizing all of the functionalities requested. A iterative design methodology was used to reach the final design made. 
 \subsection{Electronic Components}
+As shown in Table~\ref{tab:Electronic Components} a brief about the electronic components supplied and their purpose is mentioned. Key components that needed much attention were the infrared sensor, the battery and the motor driver. The Infrared sensor was a digital active high sensor.Thus, it was needed to be calibrated on the line we are following. Furthermore, dealing with the battery and the motor driver supplied, it was critical to ensure that voltages coming out of the motor driver voltage regulator are 5 volts. otherwise, this will expose the components to permanent damage. For safety purposes and avoiding any damaging to the components, we simulated the entire circuit in TinkerCad \cite{tinkercad}.
 
 \subsection{Virtual and Physical Prototypes}
-
+All of the prototyping design iterations were simulated in Solid works software. Our goal was to design as few parts as we can to avoid the given printing time limit. It was agreed on at the end to use the following parts followed by their main objective: \begin{itemize}
+    \item \textbf{2x Motor mounts:} The motor mounts were used to mount the motors in a rigid way so it can support the entire weight of the vehicle.
+     \item \textbf{2x IR sensor mounts:} The main objective is to keep the IR sensors too close to the ground to avoid lighting noise from the surrounding environment
+      \item \textbf{2x Ultrasonic mounts:} Really lightweight components just to fix the ultrasonic without causing a high penality in printing time
+       \item \textbf{battery and breadboard mount:} It function is to be multifunctional part holding the breadboard on its upper side and securing the battery underneath it
+\end{itemize} 
+Our first print trial was not so successful at the beginning due to unaccounted error in our design. Then the parts were modified to have some fit tolerance to account for the error resulting from the 3D printer. Moreover on design iterations, we included slots instead of holes for the IR sensors so their position can be easily modified if needed. A visualization of the final prototype reached is shown in Figure~\ref{fig:prototype}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Prototype.png}
+    \caption{Block diagram of the line following and obstacle avoidance robot.}
+    \label{fig:prototype}
+\end{figure}
 
 \subsection{Hardware Assembly}
-All components were mounted on a chassis and connected as per the schematic.
+All components were mounted on a chassis and connected as per the schematic. For assembly, all of the parts were mounted using spax screws in 3 different lengths : 10mm, 16mm, 20mm with all of them being M3 diameter. Some holes in the wooden chassis were done using a drill. All of the components were mounted without any adhesive materials. In our assembly, it was made sure that all components were firmly secured in position. 
 
 \section{Circuit Design}
 %\begin{itemize}
@@ -159,11 +171,61 @@ All components were mounted on a chassis and connected as per the schematic.
   %  \item Wiring includes proper voltage connections and pin mappings for sensors and motors.
 %\end{itemize}
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=0.9\linewidth]{circuit_diagram.jpg}}
-\caption{Complete circuit layout of the robot}
-\label{fig:circuit}
-\end{figure}
+The autonomous vehicle circuit integrates multiple sensor and actuator subsystems using an Arduino Uno as the main controller. The complete circuit layout simulation in tinkercad is shown in Fig.~\ref{fig:CircuitSetup}.
+
+
+The wiring was designed to fulfill three key goals: modularity, robustness, and safe power distribution. Each subsystem was treated as an independent module, allowing for easier debugging and incremental development.
+
+\subsection{Sensor Integration}
+\begin{itemize}
+  \item \textbf{Infrared Line Sensors (2x)} are connected to digital input pins D12 and D13. These sensors detect the black line against the white surface, and their values are read in real-time to determine the robot's lateral alignment.
+
+  \item \textbf{Ultrasonic Sensors (2x)} are mounted on the front-left and front-right sides. Their trigger and echo pins are connected to D6/D7 (right) and D8/D9 (left). These provide real-time distance feedback to avoid collisions.
+
+  \item \textbf{Color Sensor (1x)} is connected to analog pins A0 to A4. It adds redundancy to object classification, allowing the robot to treat red-colored obstacles differently (e.g., push or bypass).
+\end{itemize}
+
+\subsection{Actuator Wiring}
+The circuit schematic of the Motor Driver along with the motors and ultrasonic sensors is shown in ~\ref{fig:Schematic}.
+\begin{itemize}
+  \item \textbf{Motor Driver (L298N)} is used to control two DC motors. It is connected to:
+  \begin{itemize}
+    \item PWM pins D10 and D11 for speed control
+    \item Direction control pins D2–D5
+  \end{itemize}
+  The motors are powered directly from the 12V battery pack via the motor driver's onboard regulator.
+\end{itemize}
+
+\subsection{Power Management}
+\begin{itemize}
+  \item A 12V DC battery pack supplies power to both motors and the Arduino.
+  \item A voltage regulator onboard the L298N downscales the 12V to 5V for the Arduino and sensors, avoiding voltage spikes and protecting delicate components.
+  \item Decoupling capacitors are placed across power lines to minimize electrical noise and ensure stable analog sensor readings.
+\end{itemize}
+
+\subsection{Pin Mapping Overview}
+
+\begin{table}[H]
+\centering
+\caption{Key Pin Assignments}
+\label{tab:pinmap}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Component} & \textbf{Pin(s)} \\ \hline
+IR Sensor (Left) & D13 \\ \hline
+IR Sensor (Right) & D12 \\ \hline
+Ultrasonic Sensor (Left) & D8 (Trig), D9 (Echo) \\ \hline
+Ultrasonic Sensor (Right) & D6 (Trig), D7 (Echo) \\ \hline
+Left Motor & D2 (F), D3 (B), D10 (PWM) \\ \hline
+Right Motor & D4 (F), D5 (B), D11 (PWM) \\ \hline
+Color Sensor & A0–A4 \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Schematic Analysis}
+The circuit was simulated and verified using Tinkercad and real-world breadboard prototyping. Care was taken to route ground lines properly, avoid floating inputs, and apply pull-down resistors where needed.
+
+The design emphasizes modularity, with all sensors and motors detachable via male/female header connectors for ease of maintenance and reassembly.
 
 
 \section{Software Implementation}
@@ -462,9 +524,9 @@ To balance power consumption, control responsiveness, and maneuverability, a set
 
 \begin{lstlisting}[language=C++, caption=Speed tuning parameters]
 // Speed configurations
-#define DefaultTurnSpeed 140
-#define DefaultRotateSpeed 120
-#define DefaultForwardSpeed 120
+#define DefaultTurnSpeed 140   
+#define DefaultRotateSpeed 120 
+#define DefaultForwardSpeed 120 
 #define DefaultBackwardSpeed 80
 \end{lstlisting}
 
@@ -500,13 +562,13 @@ void RobotNavigation::handleObstacleAvoidance() {
       delay(1000);
       obstacleStep++;
       break;
-  }
+  } 
   
   // Check obstacle on the left side
   float rightDistance = rightSensor->getDistance();
   float leftDistance = leftSensor->getDistance();
 
-  // Scenario 1: Obstacle detected
+  // Scenario 1: Obstacle detected 
   if ((rightDistance < 100 && rightDistance > 3) ||
       (leftDistance < 100 && leftDistance > 3)) {
       
@@ -525,30 +587,30 @@ void RobotNavigation::handleObstacleAvoidance() {
       }
     }
     
-    /* Once recovered the straight position,
-    rotate right to bypass from the right side
+    /* Once recovered the straight position, 
+    rotate right to bypass from the right side 
     which is clear from obstacles */
     
     motor->rotateRight(75);
     delay(500);
     
-    /* Bypass the obstacle by executing a pre-tuned
-    multi-step maneuver, developed through testing
-    with the specific hardware and environment
+    /* Bypass the obstacle by executing a pre-tuned 
+    multi-step maneuver, developed through testing 
+    with the specific hardware and environment 
     conditions */
 
-  // Scenario 2: Obstacle is not detected
+  // Scenario 2: Obstacle is not detected 
   } else {
   
     // Rotate slightly right
     motor->rotateRight(75);
     delay(350);
     
-    /* Execute bypass with pre-tuned multi-step
+    /* Execute bypass with pre-tuned multi-step 
     maneuver, developed through testing */
   }
   
-  /* In the end of bypass, switch to
+  /* In the end of bypass, switch to 
   LINE_SEARCH to reacquire the path */
   currentState = LINE_SEARCH;
   setRobotState(LINE_SEARCH);
@@ -595,24 +657,24 @@ void RobotNavigation::updateNavigation() {
       !red->ColorSensorObserve()) {
     motor->stopMotors();
     delay(300);
-    setRobotState(OBSTACLE_AVOID);
+    setRobotState(OBSTACLE_AVOID); 
   }
   
-  // Priority 2: Line following
+  // Priority 2: Line following 
   
   // Right sensor lost the line
   if (leftLine == HIGH && rightLine == LOW) {
     motor->stopMotors();
     setRobotState(LEFT);  // Turn left
     
-  // Left sensor lost the line
+  // Left sensor lost the line 
   } else if (leftLine == LOW && rightLine == HIGH) {
     motor->stopMotors();
     setRobotState(RIGHT);  // Turn right
     
-  // Both sensors lost the line
+  // Both sensors lost the line 
   } else if (leftLine == LOW && rightLine == LOW) {
-    // Invert last state
+    // Invert last state  
     if (currentState == LEFT) {
       motor->stopMotors();
       setRobotState(RIGHT);
@@ -647,11 +709,11 @@ Once a state is set via \texttt{setRobotState()} method, a specific handler func
 
 \begin{lstlisting}[language=C++, caption=Line Correction Logic]
 case LEFT:
-  /* Turn left until the right IR sensor
+  /* Turn left until the right IR sensor 
   detects the line */
   
   while (digitalRead(LINE_SENSOR_RIGHT) == LOW)
-      motor->turnLeft(DefaultTurnSpeed);
+      motor->turnLeft(DefaultTurnSpeed); 
   motor->stopMotors();
   break;
   
@@ -708,7 +770,7 @@ void RobotNavigation::handleLineSearch() {
 The Table~\ref{tab:behavior} summarizes the primary state transitions. The "Default" behavior of moving forward is the implicit action when no other trigger condition is met.
 
 \section{Git Usage and Collaboration}
-Project development was tracked using GitHub. Each member's contribution should be explained.
+Project development was tracked using GitHub. The following Table ~\ref{table:commit}, shows each member and number of commits made to the git Repository. 
 
 \begin{table}[ht]
 \centering
@@ -716,20 +778,22 @@ Project development was tracked using GitHub. Each member's contribution should 
 \hline
 \textbf{Team Member} & \textbf{Number of Commits} \\
 \hline
-Your Name     & 77 \\
-Student 2     & 25 \\
-Student 3     & 9  \\
-Student 4     & 3  \\
+Mohamed Amer   & 30 \\
+Daria Shushkova     & 72 \\
+Andrey Sysoev    & 58  \\
+Sadim Rahman     & 34  \\
 \hline
-\textbf{Total} & \textbf{114} \\
+\textbf{Total} & \textbf{192} \\
 \hline
 \end{tabular}
+\vspace{1em}
 \caption{GitHub Commits by Team Members}
 \label{table:commit}
 \end{table}
 
-\section{Key Achievements}
 
+\section{Key Achievements}
+Our autonomous car was able to follow the line smoothly, handling sharp turn at high speeds, successfully detecting obstacles and avoiding them, all of this while keeping a good accuracy of the line tracking. Moreover, we were successful in achieving successful integration of the hardware, consistency of results across multiple tests, effective collaboration using Git for version control and systematic testing and debugging approach.
 
 \section*{Acknowledgment}
 
@@ -800,7 +864,25 @@ We hereby declare that this report is our own work and that we have acknowledged
     \label{fig:seq}
 \end{figure}
 
+
 \clearpage
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{CircuitSetup.jpg}
+    \caption{Tinker Cad Simulation showing a complete circuit layout}
+    \label{fig:CircuitSetup}
+\end{figure}
+
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Schematic_Image_1.png}
+    \caption{Schematic for motor driver connection along with arduino, motors, ultrasonic sensors}
+    \label{fig:Schematic}
+\end{figure}
+\clearpage
+
+
+
 \begin{table}[H]
 \centering
 \caption{Robot State Behavior Summary}
@@ -814,5 +896,31 @@ We hereby declare that this report is our own work and that we have acknowledged
 \texttt{LINE\_SEARCH} & Both sensors off line & \begin{tabular}[c]{@{}l@{}}Scan left and right\\ for the line\end{tabular} & \begin{tabular}[c]{@{}l@{}}Line reacquired or\\ timeout expires\end{tabular} \\ \hline
 \end{tabular}
 \end{table}
+
+\begin{table}[H]
+\centering
+\begin{adjustbox}{width=0.7\textwidth}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Electronic Components} & \textbf{Description} \\ 
+\hline
+Ultrasonic Sensor (HC-SR04) & Used for detecting obstacle distance \\ 
+\hline
+Motor Driver (L298N) & Used for stepping down voltage and operating motors \\ 
+\hline
+Infrared sensors (KY-033) & Used for detecting black lines \\ 
+\hline
+Color sensor (TCS3200) & Used for detecting obstacle color \\ 
+\hline
+Arduino Uno R4  & used as the brain of the vehicle \\ 
+\hline
+Conrad LiPo battery 3200mah& Used to supply power to all componments \\ 
+\hline
+\end{tabular}
+\end{adjustbox}
+\caption{A quick brief info about the supplied electronic components}
+\label{tab:Electronic Components}
+\end{table}
+
 
 \end{document}
