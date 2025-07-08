@@ -65,14 +65,8 @@ The robot design was developed based on \textbf{tasks} and \textbf{milestones} d
 The Arduino processes data and decides how the system should respond: either adjusting its path to stay on the line or stopping and maneuvering around an obstacle. Movement is handled by two DC motors controlled through an L298N motor driver.
 
 Power is provided by a 9V battery pack, with regulation to supply the required voltages for the microcontroller and sensors. A simplified block diagram of the system is shown in Fig.~\ref{fig:block}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\linewidth]{block_diagram.jpg}
-    \caption{Block diagram of the robot system architecture.}
-    \label{fig:block}
-\end{figure}
 
-The vision of a system started with creating SysML diagrams to preserve and structure our project. It have the four Pillars of SysML:
+The vision of a system started with creating SysML diagrams to preserve and structure our project. It has the four Pillars of SysML:
 \vspace{1em}
 \begin{itemize}
   \item Requirements modeling (e.g., requirement diagram)
@@ -204,7 +198,7 @@ The circuit schematic of the Motor Driver along with the motors and ultrasonic s
 \end{itemize}
 
 \subsection{Pin Mapping Overview}
-
+The Table ~\ref{tab:pinmap} shows the pins that were used in details.
 \begin{table}[H]
 \centering
 \caption{Key Pin Assignments}
@@ -770,30 +764,10 @@ void RobotNavigation::handleLineSearch() {
 The Table~\ref{tab:behavior} summarizes the primary state transitions. The "Default" behavior of moving forward is the implicit action when no other trigger condition is met.
 
 \section{Git Usage and Collaboration}
-Project development was tracked using GitHub. The following Table ~\ref{table:commit}, shows each member and number of commits made to the git Repository. 
-
-\begin{table}[ht]
-\centering
-\begin{tabular}{l|c}
-\hline
-\textbf{Team Member} & \textbf{Number of Commits} \\
-\hline
-Mohamed Amer   & 30 \\
-Daria Shushkova     & 72 \\
-Andrey Sysoev    & 58  \\
-Sadim Rahman     & 34  \\
-\hline
-\textbf{Total} & \textbf{192} \\
-\hline
-\end{tabular}
-\vspace{1em}
-\caption{GitHub Commits by Team Members}
-\label{table:commit}
-\end{table}
-
+Project development was tracked using GitHub. In Table ~\ref{table:commit} ,The contributions of each member is shown according to the GitHub repository commits. The table can be found in the appendix.
 
 \section{Key Achievements}
-Our autonomous car was able to follow the line smoothly, handling sharp turn at high speeds, successfully detecting obstacles and avoiding them, all of this while keeping a good accuracy of the line tracking. Moreover, we were successful in achieving successful integration of the hardware, consistency of results across multiple tests, effective collaboration using Git for version control and systematic testing and debugging approach.
+The initial state machine was simulated in UPPAAL in Figure ~\ref{fig:UPPAAL} flawlessly. Moreover, our autonomous car was able to follow the line smoothly, handling sharp turn at high speeds, successfully detecting obstacles and avoiding them, all of this while keeping a good accuracy of the line tracking. Moreover, we were successful in achieving successful integration of the hardware, consistency of results across multiple tests, effective collaboration using Git for version control and systematic testing and debugging approach.
 
 \section*{Acknowledgment}
 
@@ -812,18 +786,45 @@ We hereby declare that this report is our own work and that we have acknowledged
 
 
 
-\clearpage
+
 \begin{center}
 \appendix
-\section*{SysML Diagrams}
+\section*{Figures and Tables}
 \end{center}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{l|c}
+\hline
+\textbf{Team Member} & \textbf{Number of Commits} \\
+\hline
+Mohamed Amer   & 30 \\
+Daria Shushkova     & 72 \\
+Andrey Sysoev    & 58  \\
+Sadim Rahman     & 34  \\
+\hline
+\textbf{Total} & \textbf{194} \\
+\hline
+\end{tabular}
+\vspace{1em}
+\caption{GitHub Commits by Team Members}
+\label{table:commit}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.3\linewidth]{block_diagram.jpg}
+    \caption{Block diagram of the robot system architecture.}
+    \label{fig:block}
+\end{figure}
+\clearpage
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{Requirment_Diagram.png}
     \caption{Requirement diagram}
     \label{fig:req}
 \end{figure}
-
+\clearpage
  \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{Parametric_Diagram.png}
@@ -831,6 +832,7 @@ We hereby declare that this report is our own work and that we have acknowledged
     \label{fig:par}
 \end{figure}
 \clearpage
+
 
 \begin{figure}[H]
     \centering
@@ -879,6 +881,8 @@ We hereby declare that this report is our own work and that we have acknowledged
     \caption{Schematic for motor driver connection along with arduino, motors, ultrasonic sensors}
     \label{fig:Schematic}
 \end{figure}
+
+
 \clearpage
 
 
@@ -922,5 +926,12 @@ Conrad LiPo battery 3200mah& Used to supply power to all componments \\
 \label{tab:Electronic Components}
 \end{table}
 
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{UPPAAL.png}
+    \caption{UPPAAL implementation for the entire system}
+    \label{fig:UPPAAL}
+    \textit{Note: The full code of the UPPAAL system is provided in the git repository}
+\end{figure}
 
 \end{document}
